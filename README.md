@@ -82,11 +82,20 @@ if(winnerIndexes.length==1){
 }
 ```
 # StandardCard
-- [StandardCard](src/interfaces/StandardCard.ts) Represents a standard playing card. It has properties like `name`, `color`, `rank`, `suite` and `number`.
-- This will be used to show represent a Real card in Real world. and it will be returned by most of the methods(either as an array or just element)
+The [StandardCard](src/interfaces/StandardCard.ts) class represents a standard playing card. It has the following properties:
+
+- `name`: The name of the card.
+- `color`: The color of the card.
+- `rank`: The rank of the card.
+- `suite`: The suite of the card.
+- `number`: The number value of the card.
+
+This class is used to represent a real card in the real world, and it is returned by most of the methods in the package, either as an array or as an individual element.
+
+By utilizing the `StandardCard` class, you can work with playing cards in a standardized and convenient manner.
 
 # StandardDeck
-- [StandardDeck](src/data/StandardDeck.ts) is a class to work with  [StandardCard](src/interfaces/StandardCard.ts) interface.
+- `StandardDeck` is a class to work with  [StandardCard](src/interfaces/StandardCard.ts) interface.
 - it has several methods that will help you use the [StandardCard](src/interfaces/StandardCard.ts) as you do in real word.
 - here are the methods inside this Class: 
     - `getStandardDeck`:  this will return an array of StandardCard containing each unique card that we usually have in 1 deck of 52 cards
@@ -125,10 +134,16 @@ if(winnerIndexes.length==1){
     let cardDeck = StandardDeck.getStandardDeck();
     console.log(StandardDeck.getNumber(cardDeck[0].name)); //logs 1
     ```
+
 # Hand
-- [Hand](src/interfaces/Hand.ts) Represents a Hand in teen patti with combination of 3 standard playing cards.
-- it has 2 property `cards` which is an array of 3 [StandardCard](src/interfaces/StandardCard.ts) and `hand` which shows the type of hand like `TRAIL`, `PURE_SEQUENCE` etc.
-- this will be used to represent the real world hand of card in TeenPatti game.
+The `Hand` class represents a hand in Teen Patti, which is a combination of three standard playing cards. It is defined in the [Hand](src/interfaces/Hand.ts) interface.
+
+A `Hand` object has the following properties:
+
+- `cards`: An array of three [StandardCard](src/interfaces/StandardCard.ts) objects that make up the hand.
+- `hand`: A string indicating the type of hand, such as `TRAIL`, `PURE_SEQUENCE`, and so on. This property represents the classification of the hand according to the rules of Teen Patti.
+
+The `Hand` class is used to represent the real-world hand of cards in the Teen Patti game. It allows you to store and manipulate the cards within a hand, as well as determine the type of hand it represents based on the rules of the game.
 # CardDeck
 - [CardDeck](src/model/CardDeck.ts) is the class to perform normal operations on any kind of Deck of cards.
 - this is not limited to TeenPatti but it can be used in any other game modules that has some kind of card (like Rummy, Poker etc)
