@@ -10,7 +10,7 @@ export class TeenPatti {
   /**
    * @method
    * @static
-   * sort the given Array Card in ascending order of it's number
+   * sort the given Array of Card in ascending order of it's number
    *
    * @param {StandardCard[]} cards - the array of cards to be sorted
    * @returns {StandardCard[]} - the sorted array of cards
@@ -98,6 +98,22 @@ export class TeenPatti {
 
     // finally, if not any other hand found, returning High
     return TeenPattiHand.HIGH
+  }
+
+  /**
+   * @method
+   * @static
+   * convert the given array of 3 cards into Hand interface
+   *
+   * @param {[StandardCard,StandardCard,StandardCard]} cards - the array of cards to be sorted
+   * @returns {Hand} - the sorted array of cards
+   */
+  static makeHand(cards: [StandardCard, StandardCard, StandardCard]): Hand {
+    const hand: Hand = {
+      cards,
+      hand: this.calculateHand(cards),
+    }
+    return hand
   }
 
   /**
