@@ -24,10 +24,9 @@ At present, Card Games Utils features a TeenPatti game logic implementation. Rum
 
 
 # Installation
-//TODO::UPDATE THIS
-Install the package via composer:
+Install the package via npm:
 
-`composer require mazimez/laravel-gigapay`
+`npm i card-games-utils`
 
 # How-to-Use-teen-patti
 - here is 1 basic example of how you can use `card-game-utils` to implement TeenPatti game's logic

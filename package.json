@@ -41,6 +41,6 @@
     "typescript": "^5.0.4"
   },
   "files": [
-    "lib/**/*"
+    "lib/**/*","cover.png"
   ]
 }
