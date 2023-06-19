@@ -4,6 +4,7 @@
     <img src="https://img.shields.io/github/issues/mazimez/card-games-utils">
     <img src="https://img.shields.io/github/forks/mazimez/card-games-utils">
     <img src="https://img.shields.io/github/stars/mazimez/card-games-utils">
+    <img src="https://img.shields.io/npm/v/card-games-utils.svg?style=flat-square">
 </p>
 </div>
 
