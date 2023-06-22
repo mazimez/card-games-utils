@@ -1,7 +1,4 @@
 {
-    "conventionalCommits.scopes": [
-        "README",
-        "CHORES",
-        "RUMMY"
-    ]
+  "conventionalCommits.scopes": ["README", "CHORES", "RUMMY"],
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }

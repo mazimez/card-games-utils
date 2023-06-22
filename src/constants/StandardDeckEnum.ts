@@ -55,6 +55,7 @@ export enum StandardCardName {
   SPADES_JACK = 'SPADES_JACK',
   SPADES_QUEEN = 'SPADES_QUEEN',
   SPADES_KING = 'SPADES_KING',
+  JOKER = 'JOKER',
 }
 
 /**
@@ -64,6 +65,7 @@ export enum StandardCardName {
 export enum StandardCardColor {
   RED = 'RED',
   BLACK = 'BLACK',
+  JOKER = 'JOKER',
 }
 
 /**
@@ -75,6 +77,7 @@ export enum StandardCardSuite {
   DIAMONDS = 'DIAMONDS',
   HEARTS = 'HEARTS',
   SPADES = 'SPADES',
+  JOKER = 'JOKER',
 }
 
 /**
@@ -95,4 +98,5 @@ export enum StandardCardRank {
   JACK = 'JACK',
   QUEEN = 'QUEEN',
   KING = 'KING',
+  JOKER = 'JOKER',
 }

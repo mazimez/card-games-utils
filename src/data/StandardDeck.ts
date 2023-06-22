@@ -16,11 +16,17 @@ export class StandardDeck {
    *
    * @static
    *
+   * @param {boolean} withJoker - boolean to decide should the deck include Joker card or not
    * @returns {StandardCard[]} The array of standard playing cards.
    */
-  static getStandardDeck(): StandardCard[] {
+  static getStandardDeck(withJoker: boolean = false): StandardCard[] {
     const cards: StandardCard[] = []
     for (const card of Object.keys(StandardCardName)) {
+      if (card === StandardCardName.JOKER) {
+        if (!withJoker) {
+          continue
+        }
+      }
       cards.push({
         name: card as keyof typeof StandardCardName,
         color: this.getColor(card as keyof typeof StandardCardName),
@@ -51,6 +57,8 @@ export class StandardDeck {
         return StandardCardSuite.HEARTS
       case StandardCardSuite.SPADES:
         return StandardCardSuite.SPADES
+      case StandardCardSuite.JOKER:
+        return StandardCardSuite.JOKER
       default:
         throw new Error('Suite not found')
     }
@@ -75,6 +83,8 @@ export class StandardDeck {
         return StandardCardColor.RED
       case StandardCardSuite.SPADES:
         return StandardCardColor.BLACK
+      case StandardCardSuite.JOKER:
+        return StandardCardColor.JOKER
       default:
         throw new Error('Color not found')
     }
@@ -90,6 +100,11 @@ export class StandardDeck {
    * @throws {Error} - when rank not found
    */
   static getRank(card: keyof typeof StandardCardName): keyof typeof StandardCardRank {
+    if (card.split('_').length === 1) {
+      if (card.split('_')[0] === StandardCardName.JOKER) {
+        return StandardCardName.JOKER
+      }
+    }
     switch (card.split('_')[1]) {
       case StandardCardRank.ACE:
         return StandardCardRank.ACE
@@ -133,6 +148,11 @@ export class StandardDeck {
    * @throws {Error} - when number not found
    */
   static getNumber(card: keyof typeof StandardCardName): number {
+    if (card.split('_').length === 1) {
+      if (card.split('_')[0] === StandardCardName.JOKER) {
+        return -1
+      }
+    }
     switch (card.split('_')[1]) {
       case StandardCardRank.ACE:
         return 1
