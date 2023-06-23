@@ -14,8 +14,9 @@ export class CardDeck {
    * @returns {T[]} - A new array with the items(cards) shuffled randomly.
    */
   static shuffleCards<T>(cards: T[]): T[] {
-    cards.sort(() => 0.5 - Math.random())
-    return cards
+    const shuffledCards = [...cards]
+    shuffledCards.sort(() => 0.5 - Math.random())
+    return shuffledCards
   }
 
   /**
@@ -45,13 +46,13 @@ export class CardDeck {
     if (shouldDealAround) {
       for (let i = 0; i < cardPerPlayer; i++) {
         for (let j = 0; j < numberOfPlayers; j++) {
-          distributedCardsArr[j].push(cards.pop() as T)
+          distributedCardsArr[j].push(cards.shift() as T)
         }
       }
     } else {
       for (let i = 0; i < numberOfPlayers; i++) {
         for (let j = 0; j < cardPerPlayer; j++) {
-          distributedCardsArr[i].push(cards.pop() as T)
+          distributedCardsArr[i].push(cards.shift() as T)
         }
       }
     }
