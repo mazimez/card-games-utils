@@ -1,24 +1,13 @@
 import { TeenPattiHand } from '../constants/TeenPattiEnum'
 import { type StandardCard } from '../interfaces/StandardCard'
 import { type Hand } from '../interfaces/Hand'
+import { StandardCardHelper } from '../helpers/StandardCardHelper'
 
 /**
  * Class to handle operations of TeenPatti game
  * @class
  */
 export class TeenPatti {
-  /**
-   * @method
-   * @static
-   * sort the given Array of Card in ascending order of it's number
-   *
-   * @param {StandardCard[]} cards - the array of cards to be sorted
-   * @returns {StandardCard[]} - the sorted array of cards
-   */
-  static sortCards(cards: StandardCard[]): StandardCard[] {
-    return cards.sort((currentCard, nextCard) => currentCard.number - nextCard.number)
-  }
-
   /**
    * @method
    * @static
@@ -30,7 +19,7 @@ export class TeenPatti {
   static calculateHand(
     cards: [StandardCard, StandardCard, StandardCard]
   ): keyof typeof TeenPattiHand {
-    const sortedCards: StandardCard[] = this.sortCards(cards)
+    const sortedCards: StandardCard[] = StandardCardHelper.sortCards(cards)
     // check for trail condition
     if (
       sortedCards[0].number === sortedCards[1].number &&
@@ -224,8 +213,8 @@ export class TeenPatti {
     })
 
     // sorting cards is ascending order, so lowest card will be first
-    cards = this.sortCards(cards)
-    cardsToCompare = this.sortCards(cardsToCompare)
+    cards = StandardCardHelper.sortCards(cards)
+    cardsToCompare = StandardCardHelper.sortCards(cardsToCompare)
 
     // after sorting, we start comparing each card(from highest to lowest) to see who has the highest card
     if (cards[2].number > cardsToCompare[2].number) {

@@ -1,4 +1,5 @@
-import { StandardCardSuite } from '../constants/StandardDeckEnum'
+import { StandardCardName, StandardCardSuite } from '../constants/StandardDeckEnum'
+import { StandardCardHelper } from '../helpers/StandardCardHelper'
 import { type Meld } from '../interfaces/Meld'
 import { type StandardCard } from '../interfaces/StandardCard'
 
@@ -12,26 +13,11 @@ export class Rummy {
    * @static
    * convert given array cards and groups into Meld interface
    *
-   * @param {Meld} meld - generated meld
+   * @param {StandardCard[]} cards - array of cards
+   * @param {number[][]} groups - mutlidimenal array of numbers that make different groups in meld
+   * @returns {Meld} - returns the generated meld
    */
-  static makeMeld(
-    cards: [
-      StandardCard,
-      StandardCard,
-      StandardCard,
-      StandardCard,
-      StandardCard,
-      StandardCard,
-      StandardCard,
-      StandardCard,
-      StandardCard,
-      StandardCard,
-      StandardCard,
-      StandardCard,
-      StandardCard
-    ],
-    groups?: number[][]
-  ): Meld {
+  static makeMeld(cards: StandardCard[], groups?: number[][]): Meld {
     const meld: Meld = {
       cards,
       groups: groups ?? [],
@@ -98,16 +84,184 @@ export class Rummy {
     return meld
   }
 
-  // TODO::add a method to check is meld has all required cards to declare
-  // /**
-  //  * @method
-  //  * @static
-  //  * decides if the given meld is ready to be declared
-  //  *
-  //  * @param {Meld} meld - the meld who is about to be declared
-  //  * @param {StandardCard} [jokerCard] - optional joker card.
-  //  */
-  // static isReadyToDeclare(meld: Meld, jokerCard?: StandardCard): boolean {
-  //   return true
-  // }
+  /**
+   * @method
+   * @static
+   * decides if the given meld is ready to be declared
+   *
+   * @param {Meld} meld - the meld who is about to be declared
+   * @param {keyof typeof StandardCardName} [wildCardName] - optional wild card.
+   */
+  static isReadyToDeclare(
+    meld: Meld,
+    wildCardName?: keyof typeof StandardCardName | undefined
+  ): boolean {
+    const groups = this.getCardGroup(meld)
+
+    if (groups.length !== 3) {
+      return false
+    }
+    let hasSet = false
+    let hasSequence = false
+    let hasPureSequence = false
+
+    groups.forEach((cards) => {
+      if (!hasSet && this.isInSet(cards, wildCardName)) {
+        hasSet = true
+      }
+      if (!hasPureSequence && this.isInPureSequence(cards)) {
+        hasPureSequence = true
+      }
+      if (!hasSequence && this.isInSequence(cards, wildCardName)) {
+        hasSequence = true
+      }
+    })
+
+    if (hasSet && hasSequence && hasPureSequence) {
+      return true
+    }
+    return false
+  }
+
+  /**
+   * @method
+   * @static
+   * decides if the given array of cards are in sequence or not
+   *
+   * @param {StandardCard[]} cards - array of cards that needs be checked
+   * @param {keyof typeof StandardCardName} [wildCardName] - optional wild card.
+   * @returns {boolean} - returns a boolean that given cards are in sequence or not
+   */
+  static isInSequence(
+    cards: StandardCard[],
+    wildCardName: keyof typeof StandardCardName | undefined
+  ): boolean {
+    if (cards.length < 3) {
+      return false
+    }
+    let hasJoker = false
+    let isJokerUsed = false
+    let isWildCardUsed = false
+    const tempCards = [...cards]
+    const jokerIndex = StandardCardHelper.isInDeck(tempCards, StandardCardName.JOKER)
+    if (jokerIndex > -1) {
+      hasJoker = true
+      tempCards.splice(jokerIndex, 1)
+    }
+    let sequenceNumber
+
+    let isInSequence = true
+    let isAllCardCheck = false
+
+    let index = 0
+    while (isInSequence && !isAllCardCheck) {
+      if (sequenceNumber === undefined) {
+        sequenceNumber = tempCards[index].number
+      } else {
+        if (tempCards[index].number === sequenceNumber + 1) {
+          sequenceNumber = tempCards[index].number
+        } else {
+          if (hasJoker && !isJokerUsed) {
+            sequenceNumber++
+            isJokerUsed = true
+            continue
+          } else if (!isWildCardUsed && tempCards[index].name === wildCardName) {
+            isWildCardUsed = true
+            sequenceNumber++
+          } else {
+            isInSequence = false
+          }
+        }
+      }
+      if (tempCards.length - 1 === index) {
+        isAllCardCheck = true
+      }
+      index++
+    }
+    return isInSequence
+  }
+
+  /**
+   * @method
+   * @static
+   * decides if the given array of cards are in sets or not
+   *
+   * @param {StandardCard[]} cards - array of cards that needs be checked
+   * @param {keyof typeof StandardCardName} [wildCardName] - optional wild card.
+   * @returns {boolean} - returns a boolean that given cards are in sets or not
+   */
+  static isInSet(
+    cards: StandardCard[],
+    wildCardName: keyof typeof StandardCardName | undefined
+  ): boolean {
+    if (cards.length < 3) {
+      return false
+    }
+    if (StandardCardHelper.hasSameNumber(cards) && !StandardCardHelper.hasPairSuite(cards)) {
+      return true
+    }
+    const tempCards = [...cards]
+    let jokerIndex = StandardCardHelper.isInDeck(tempCards, StandardCardName.JOKER)
+    if (jokerIndex > -1) {
+      tempCards.splice(jokerIndex, 1)
+      if (
+        StandardCardHelper.hasSameNumber(tempCards) &&
+        !StandardCardHelper.hasPairSuite(tempCards)
+      ) {
+        return true
+      }
+    } else {
+      if (wildCardName !== undefined) {
+        jokerIndex = StandardCardHelper.isInDeck(tempCards, wildCardName)
+        if (jokerIndex > -1) {
+          tempCards.splice(jokerIndex, 1)
+          if (
+            StandardCardHelper.hasSameNumber(tempCards) &&
+            !StandardCardHelper.hasPairSuite(tempCards)
+          ) {
+            return true
+          }
+        }
+      }
+    }
+    return false
+  }
+
+  /**
+   * @method
+   * @static
+   * decides if the given array of cards are in pure sequence or not
+   *
+   * @param {StandardCard[]} cards - array of cards that needs be checked
+   * @returns {boolean} - returns a boolean that given cards are in pure sequence or not
+   */
+  static isInPureSequence(cards: StandardCard[]): boolean {
+    if (cards.length < 3) {
+      return false
+    }
+    if (!StandardCardHelper.hasSameSuite(cards)) {
+      return false
+    }
+    const tempCards = [...cards]
+    let isInSequence = true
+    let isAllCardCheck = false
+    let sequenceNumber
+    let index = 0
+    while (isInSequence && !isAllCardCheck) {
+      if (sequenceNumber === undefined) {
+        sequenceNumber = tempCards[index].number
+      } else {
+        if (tempCards[index].number === sequenceNumber + 1) {
+          sequenceNumber = tempCards[index].number
+        } else {
+          isInSequence = false
+        }
+      }
+      if (tempCards.length - 1 === index) {
+        isAllCardCheck = true
+      }
+      index++
+    }
+    return isInSequence
+  }
 }

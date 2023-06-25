@@ -6,25 +6,11 @@ import { type StandardCard } from './StandardCard'
  */
 export interface Meld {
   /**
-   * An array of 13 cards that can make up the player's Meld.
+   * An array of cards that can make up the player's Meld.
    *
-   * @type {[StandardCard, StandardCard, StandardCard,StandardCard,StandardCard,StandardCard,StandardCard,StandardCard,StandardCard,StandardCard,StandardCard,StandardCard,StandardCard]}
+   * @type {StandardCard[]}
    */
-  cards: [
-    StandardCard,
-    StandardCard,
-    StandardCard,
-    StandardCard,
-    StandardCard,
-    StandardCard,
-    StandardCard,
-    StandardCard,
-    StandardCard,
-    StandardCard,
-    StandardCard,
-    StandardCard,
-    StandardCard
-  ]
+  cards: StandardCard[]
 
   /**
    * array of arrays of indexes from cards array from meld that can have different combination like SET or sequence
