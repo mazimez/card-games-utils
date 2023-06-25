@@ -1,4 +1,5 @@
 import { type StandardCardName } from '../constants/StandardDeckEnum'
+import { StandardDeck } from '../data/StandardDeck'
 import { type StandardCard } from '../interfaces/StandardCard'
 
 /**
@@ -6,6 +7,25 @@ import { type StandardCard } from '../interfaces/StandardCard'
  * @class
  */
 export class StandardCardHelper {
+  /**
+   * @method
+   * @static
+   * generate the StandardCard interface instance based on the card name given
+   *
+   * @param {keyof typeof StandardCardName} cardName name of card
+   * @returns {StandardCard} - instance of StandardCard interface based on given cardName
+   */
+  static makeStandardCard(cardName: keyof typeof StandardCardName): StandardCard {
+    const card: StandardCard = {
+      name: cardName,
+      color: StandardDeck.getColor(cardName),
+      number: StandardDeck.getNumber(cardName),
+      rank: StandardDeck.getRank(cardName),
+      suite: StandardDeck.getSuite(cardName),
+    }
+    return card
+  }
+
   /**
    * @method
    * @static

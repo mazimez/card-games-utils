@@ -5,8 +5,20 @@ import { CardDeck } from './models/CardDeck'
 import { TeenPatti } from './models/TeenPatti'
 import { Rummy } from './models/Rummy'
 import { StandardCardName } from './constants/StandardDeckEnum'
+import { StandardCardHelper } from './helpers/StandardCardHelper'
+import { type Meld } from './interfaces/Meld'
 
-export { TeenPatti, CardDeck, StandardDeck, type StandardCard, type Hand, type Rummy }
+export {
+  TeenPatti,
+  CardDeck,
+  StandardDeck,
+  StandardCardHelper,
+  StandardCardName,
+  type StandardCard,
+  type Hand,
+  type Meld,
+  type Rummy,
+}
 
 const cardNames = [
   StandardCardName.CLUBS_TEN,
