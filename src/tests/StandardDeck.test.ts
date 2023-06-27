@@ -1,7 +1,8 @@
 import { StandardCardName } from '../constants/StandardDeckEnum'
 import { StandardDeck } from '../data/StandardDeck'
 
-test('check getStandardDeck() method', () => {
+describe('test the StandardDeck data and all methods in it', () => {})
+it('test getStandardDeck() method', () => {
   const cardsWithoutJoker = StandardDeck.getStandardDeck()
   expect(Array.isArray(cardsWithoutJoker)).toBe(true)
   expect(cardsWithoutJoker.length).toBe(52)
