@@ -350,7 +350,8 @@ The `Hand` is used to represent the real-world hand of cards in the Teen Patti g
 import { CardDeck, Rummy, StandardDeck } from 'card-games-utils'
 
 //get the card deck(52 card) - you can merge 2 deck if you want more cards
-let cardDeck = StandardDeck.getStandardDeck()
+//adding the joker card in deck by passing true as a parameter
+let cardDeck = StandardDeck.getStandardDeck(true)
 
 //shuffle the cards
 cardDeck = CardDeck.shuffleCards(cardDeck)

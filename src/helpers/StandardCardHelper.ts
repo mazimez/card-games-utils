@@ -35,7 +35,8 @@ export class StandardCardHelper {
    * @returns {StandardCard[]} - the sorted array of cards
    */
   static sortCards(cards: StandardCard[]): StandardCard[] {
-    return cards.sort((currentCard, nextCard) => currentCard.number - nextCard.number)
+    const tempCards = [...cards]
+    return tempCards.sort((currentCard, nextCard) => currentCard.number - nextCard.number)
   }
 
   /**
@@ -95,8 +96,8 @@ export class StandardCardHelper {
    * @returns {boolean} the boolean indicating that cards has pair of same number or not
    */
   static hasPairNumber(cards: StandardCard[]): boolean {
-    return cards.every((card, index) => {
-      return cards.every((otherCard, otherIndex) => {
+    return cards.some((card, index) => {
+      return cards.some((otherCard, otherIndex) => {
         return index !== otherIndex && card.number === otherCard.number
       })
     })
