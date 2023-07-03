@@ -36,7 +36,9 @@ At present, Card Games Utils features a TeenPatti game logic and Rummy game logi
 
 Install the package via npm:
 
-`npm i card-games-utils`
+```bash
+npm i card-games-utils
+```
 
 # StandardCard
 
