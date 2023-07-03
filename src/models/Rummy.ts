@@ -134,49 +134,53 @@ export class Rummy {
    */
   static isInSequence(
     cards: StandardCard[],
-    wildCardName: keyof typeof StandardCardName | undefined
+    wildCardName?: keyof typeof StandardCardName | undefined
   ): boolean {
     if (cards.length < 3) {
       return false
     }
-    let hasJoker = false
+    const tempCards = [...cards]
     let isJokerUsed = false
     let isWildCardUsed = false
-    const tempCards = [...cards]
-    const jokerIndex = StandardCardHelper.isInDeck(tempCards, StandardCardName.JOKER)
-    if (jokerIndex > -1) {
-      hasJoker = true
-      tempCards.splice(jokerIndex, 1)
-    }
     let sequenceNumber
-
     let isInSequence = true
     let isAllCardCheck = false
 
     let index = 0
     while (isInSequence && !isAllCardCheck) {
       if (sequenceNumber === undefined) {
-        sequenceNumber = tempCards[index].number
+        if (tempCards[index].number === -1 && !isJokerUsed) {
+          isJokerUsed = true
+          index++
+          continue
+        } else if (tempCards[index].name === wildCardName && !isWildCardUsed) {
+          isWildCardUsed = true
+          index++
+          continue
+        } else {
+          sequenceNumber = tempCards[index].number
+        }
       } else {
         if (tempCards[index].number === sequenceNumber + 1) {
           sequenceNumber = tempCards[index].number
+        } else if (tempCards[index].number === -1 && !isJokerUsed) {
+          sequenceNumber++
+          isJokerUsed = true
+        } else if (tempCards[index].name === wildCardName && !isWildCardUsed) {
+          sequenceNumber++
+          isWildCardUsed = true
         } else {
-          if (hasJoker && !isJokerUsed) {
-            sequenceNumber++
-            isJokerUsed = true
-            continue
-          } else if (!isWildCardUsed && tempCards[index].name === wildCardName) {
-            isWildCardUsed = true
-            sequenceNumber++
-          } else {
-            isInSequence = false
-          }
+          isInSequence = false
         }
       }
       if (tempCards.length - 1 === index) {
         isAllCardCheck = true
       }
       index++
+    }
+
+    if (cards.length === 3 && isWildCardUsed && isJokerUsed) {
+      return false
     }
     return isInSequence
   }
@@ -192,7 +196,7 @@ export class Rummy {
    */
   static isInSet(
     cards: StandardCard[],
-    wildCardName: keyof typeof StandardCardName | undefined
+    wildCardName?: keyof typeof StandardCardName | undefined
   ): boolean {
     if (cards.length < 3) {
       return false
