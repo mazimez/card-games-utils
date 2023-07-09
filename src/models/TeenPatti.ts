@@ -196,8 +196,8 @@ export class TeenPatti {
     // first checking if any card in each hand has the ace in it, if yes then changing it's number from 1 to 14(since ace should be the highest while comparing)
     let cards: StandardCard[] = hand.cards.filter((card) => {
       if (card.number === 1) {
-        card.number = 14
-        return card
+        const modifiedCard: StandardCard = { ...card, number: 14 }
+        return modifiedCard
       } else {
         return card
       }
@@ -205,8 +205,8 @@ export class TeenPatti {
 
     let cardsToCompare: StandardCard[] = handToCompare.cards.filter((card) => {
       if (card.number === 1) {
-        card.number = 14
-        return card
+        const modifiedCard: StandardCard = { ...card, number: 14 }
+        return modifiedCard
       } else {
         return card
       }

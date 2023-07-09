@@ -85,6 +85,56 @@ describe('test the TeenPatti model and all methods in it', () => {
     expect(Array.isArray(winnerArr)).toBe(true)
     expect(winnerArr.length).toBe(1)
     expect(winnerArr[0]).toBe(0)
+    // SEQUENCE-COLOR => SEQUENCE
+    winnerArr = TeenPatti.calculateWinners([
+      TeenPatti.makeHand([
+        StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+        StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_TWO),
+        StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_THREE),
+      ]),
+      TeenPatti.makeHand([
+        StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+        StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_FOUR),
+        StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_KING),
+      ]),
+    ])
+    expect(Array.isArray(winnerArr)).toBe(true)
+    expect(winnerArr.length).toBe(1)
+    expect(winnerArr[0]).toBe(0)
+    // COLOR-PAIR => COLOR
+    winnerArr = TeenPatti.calculateWinners([
+      TeenPatti.makeHand([
+        StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+        StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_FOUR),
+        StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_KING),
+      ]),
+      TeenPatti.makeHand([
+        StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+        StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_ACE),
+        StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_KING),
+      ]),
+    ])
+    expect(Array.isArray(winnerArr)).toBe(true)
+    expect(winnerArr.length).toBe(1)
+    expect(winnerArr[0]).toBe(0)
+    // PAIR-HIGH => PAIR
+    winnerArr = TeenPatti.calculateWinners([
+      TeenPatti.makeHand([
+        StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+        StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_ACE),
+        StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_KING),
+      ]),
+      TeenPatti.makeHand([
+        StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+        StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_FOUR),
+        StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_EIGHT),
+      ]),
+    ])
+    expect(Array.isArray(winnerArr)).toBe(true)
+    expect(winnerArr.length).toBe(1)
+    expect(winnerArr[0]).toBe(0)
   })
-  it('test isRankHigher() method', () => {})
+  it('test isRankHigher() method', () => {
+    // TODO::finalize the logic to decide which hand should be higher and impliment it and also test it here
+  })
 })
