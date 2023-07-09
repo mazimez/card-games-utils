@@ -14,6 +14,8 @@ Card Games Utils is a comprehensive utility package designed to streamline the i
 
 At present, Card Games Utils features a TeenPatti game logic and Rummy game logic implementation. other games will be added soon.
 
+If you find this project helpful, please consider sponsoring its development by visiting [this page](https://github.com/sponsors/mazimez).
+
 # Table of contents
 
 - [Installation](#Installation)
