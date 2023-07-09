@@ -1,5 +1,5 @@
 {
-  "conventionalCommits.scopes": ["README", "CHORES", "RUMMY", "TEST"],
+  "conventionalCommits.scopes": ["README", "CHORES", "RUMMY", "TEST", "TEENPATTI"],
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "cSpell.words": ["mutlidimenal"]
 }
