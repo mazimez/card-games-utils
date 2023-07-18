@@ -117,4 +117,68 @@ describe('test the StandardCardHelper helper and all methods in it', () => {
     expect(StandardCardHelper.isInDeck(cards, StandardCardName.CLUBS_EIGHT)).toBe(0)
     expect(StandardCardHelper.isInDeck(cards, StandardCardName.DIAMONDS_ACE)).toBe(-1)
   })
+
+  it('test getCountFromDeck() method', () => {
+    const cards = [
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_EIGHT),
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+    ]
+    const cardsToCompare = [
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_EIGHT),
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+    ]
+    expect(StandardCardHelper.getCountFromDeck(cards, StandardCardName.CLUBS_EIGHT)).toBe(1)
+    expect(StandardCardHelper.getCountFromDeck(cards, StandardCardName.JOKER)).toBe(2)
+    expect(StandardCardHelper.getCountFromDeck(cards, StandardCardName.CLUBS_ACE)).toBe(0)
+    expect(cardsToCompare).toMatchObject(cards)
+  })
+
+  it('test hasDuplicates() method', () => {
+    let cards = [
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_EIGHT),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_EIGHT),
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+    ]
+    const cardsToCompare = [
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_EIGHT),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_EIGHT),
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+    ]
+    expect(StandardCardHelper.hasDuplicates(cards)).toBe(true)
+    expect(
+      StandardCardHelper.hasDuplicates(cards, [
+        StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+      ])
+    ).toBe(true)
+    expect(
+      StandardCardHelper.hasDuplicates(cards, [
+        StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_EIGHT),
+      ])
+    ).toBe(true)
+    expect(
+      StandardCardHelper.hasDuplicates(cards, [
+        StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_EIGHT),
+        StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+      ])
+    ).toBe(false)
+    expect(cardsToCompare).toMatchObject(cards)
+    cards = [
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_EIGHT),
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+    ]
+    expect(
+      StandardCardHelper.hasDuplicates(cards, [
+        StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_EIGHT),
+        StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+        StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+      ])
+    ).toBe(false)
+  })
 })

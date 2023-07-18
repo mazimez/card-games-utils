@@ -115,4 +115,47 @@ export class StandardCardHelper {
   static isInDeck(cards: StandardCard[], cardToFind: keyof typeof StandardCardName): number {
     return cards.findIndex((card) => card.name === cardToFind)
   }
+
+  /**
+   * @method
+   * @static
+   * returns the count of particular card from the given cards
+   *
+   * @param {StandardCard[]} cards the array of cards to be checked
+   * @param {StandardCardName} cardToFind the StandardCardName that needs to be found
+   * @returns {number} the count indicating how many times does that card appear in the given cards(0 if it doesn't exist)
+   */
+  static getCountFromDeck(
+    cards: StandardCard[],
+    cardToFind: keyof typeof StandardCardName
+  ): number {
+    return cards.reduce((count, card) => {
+      if (card.name === cardToFind) {
+        return count + 1
+      }
+      return count
+    }, 0)
+  }
+
+  /**
+   * @method
+   * @static
+   * checks if the given cards has any duplicate cards or not
+   *
+   * @param {StandardCard[]} cards the array of cards to be checked
+   * @param {StandardCardName} cardToFind the StandardCardName that needs to be found
+   * @param {StandardCard[]} cardsToIgnore array of cards that should be ignored
+   * @returns {boolean} indicate that is card has duplicate card or not.
+   */
+  static hasDuplicates(cards: StandardCard[], cardsToIgnore: StandardCard[] = []): boolean {
+    return cards.some((card, index) => {
+      return cards.some((otherCard, otherIndex) => {
+        if (cardsToIgnore.some((obj) => obj.name === otherCard.name)) {
+          return false
+        } else {
+          return index !== otherIndex && card.name === otherCard.name
+        }
+      })
+    })
+  }
 }

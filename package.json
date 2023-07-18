@@ -12,6 +12,12 @@
     "type": "git",
     "url": "https://github.com/mazimez/card-games-utils"
   },
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/mazimez"
+    }
+  ],
   "keywords": [
     "teen patti",
     "teen-patti",
