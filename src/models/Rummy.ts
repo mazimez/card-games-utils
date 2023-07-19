@@ -1,4 +1,6 @@
+import { ErrorEnum } from '../constants/ErrorEnum'
 import { StandardCardName, StandardCardSuite } from '../constants/StandardDeckEnum'
+import { StandardDeck } from '../data/StandardDeck'
 import { StandardCardHelper } from '../helpers/StandardCardHelper'
 import { type Meld } from '../interfaces/Meld'
 import { type RummyConfig } from '../interfaces/RummyConfig'
@@ -42,20 +44,10 @@ export class Rummy {
     isPureSequenceRequired: boolean = true,
     isJokerAllowed: boolean = true,
     isWildAllowed: boolean = true,
-    numCardsPerMeld: number = 13,
-    numFlexCardPerMeld: number = 3,
-    numFlexCardPerGroup: number = 1
+    numCardsPerMeld: number = 13
   ): RummyConfig {
     if (!isSetRequired && !isSequenceRequired && !isPureSequenceRequired) {
-      throw new Error(
-        'At least one of the three variables must be true: isSetRequired, isSequenceRequired, or isPureSequenceRequired.'
-      )
-    }
-    if (numFlexCardPerMeld >= numCardsPerMeld) {
-      throw new Error('flex cards can not same or more then total card in meld')
-    }
-    if (numFlexCardPerGroup >= numCardsPerMeld) {
-      throw new Error('flex cards can not same or more then total card in meld')
+      throw new Error(ErrorEnum.AT_LEAST_ONE_RULE_IS_REQUIRED)
     }
 
     const config: RummyConfig = {
@@ -65,8 +57,6 @@ export class Rummy {
       isJokerAllowed,
       isWildAllowed,
       numCardsPerMeld,
-      numFlexCardPerMeld,
-      numFlexCardPerGroup,
     }
     return config
   }
@@ -87,7 +77,7 @@ export class Rummy {
 
     if (!this.config.isJokerAllowed) {
       if (StandardCardHelper.isInDeck(meld.cards, StandardCardName.JOKER) !== -1) {
-        throw new Error('Joker is not allowed in meld')
+        throw new Error(ErrorEnum.JOKER_NOT_ALLOWED)
       }
     }
 
@@ -216,24 +206,29 @@ export class Rummy {
     meld: Meld,
     wildCardName?: keyof typeof StandardCardName | undefined
   ): RummyDeclareCheck {
-    // TODO::calculate points properly for each return
-    this.verifyMeld(meld)
+    try {
+      this.verifyMeld(meld)
+    } catch (error) {
+      if (error instanceof Error) {
+        return {
+          isValid: false,
+          error: error.message,
+          points: Rummy.calculatePoints(meld.cards, wildCardName),
+        }
+      } else {
+        return {
+          isValid: false,
+          error: ErrorEnum.INVALID_DATA,
+          points: Rummy.calculatePoints(meld.cards, wildCardName),
+        }
+      }
+    }
+
     if (!this.config.isJokerAllowed) {
       if (StandardCardHelper.isInDeck(meld.cards, StandardCardName.JOKER) !== -1) {
         return {
           isValid: false,
-          error: 'Joker is not allowed in meld',
-          points: Rummy.calculatePoints(meld.cards, wildCardName),
-        }
-      }
-    } else {
-      if (
-        this.config.numFlexCardPerMeld <
-        StandardCardHelper.getCountFromDeck(meld.cards, StandardCardName.JOKER)
-      ) {
-        return {
-          isValid: false,
-          error: `numbers of jokers/flex cards in 1 meld can not be more then ${this.config.numFlexCardPerMeld}`,
+          error: ErrorEnum.JOKER_NOT_ALLOWED,
           points: Rummy.calculatePoints(meld.cards, wildCardName),
         }
       }
@@ -242,7 +237,7 @@ export class Rummy {
       if (wildCardName !== undefined) {
         return {
           isValid: false,
-          error: 'Wild card is not allowed in this game',
+          error: ErrorEnum.WILD_NOT_ALLOWED,
           points: Rummy.calculatePoints(meld.cards, wildCardName),
         }
       }
@@ -254,42 +249,20 @@ export class Rummy {
 
     let isReadyToDeclare = true
     let errorMessage
-    let flexCardsInMeld = 0
     if (this.config.isSetRequired && isReadyToDeclare) {
       let isInSet = false
       cardGroups.forEach((cards, index) => {
         if (usedIndexes.includes(index)) {
           return
         }
-        const temp = this.isInSet(cards)
-        if (temp.isValid) {
-          flexCardsInMeld = flexCardsInMeld + (temp.numOfFlexCardUsed ?? 0)
+        if (this.isInSet(cards).isValid) {
           usedIndexes.push(index)
           isInSet = true
         }
       })
       if (!isInSet && isReadyToDeclare) {
         isReadyToDeclare = false
-        errorMessage = 'SET is required to declare'
-      }
-    }
-
-    if (this.config.isSequenceRequired && isReadyToDeclare) {
-      let isInSequence = false
-      cardGroups.forEach((cards, index) => {
-        if (usedIndexes.includes(index)) {
-          return
-        }
-        const temp = this.isInSet(cards)
-        if (temp.isValid) {
-          usedIndexes.push(index)
-          flexCardsInMeld = flexCardsInMeld + (temp.numOfFlexCardUsed ?? 0)
-          isInSequence = true
-        }
-      })
-      if (!isInSequence && isReadyToDeclare) {
-        isReadyToDeclare = false
-        errorMessage = 'SEQUENCE is required to declare'
+        errorMessage = ErrorEnum.SET_REQUIRED
       }
     }
 
@@ -306,13 +279,25 @@ export class Rummy {
       })
       if (!isInPureSequence && isReadyToDeclare) {
         isReadyToDeclare = false
-        errorMessage = 'SEQUENCE is required to declare'
+        errorMessage = ErrorEnum.PURE_SEQUENCE_REQUIRED
       }
     }
 
-    if (flexCardsInMeld > this.config.numFlexCardPerMeld) {
-      isReadyToDeclare = false
-      errorMessage = `only ${this.config.numFlexCardPerMeld} flex cards are allowed, you have ${flexCardsInMeld} flex cards`
+    if (this.config.isSequenceRequired && isReadyToDeclare) {
+      let isInSequence = false
+      cardGroups.forEach((cards, index) => {
+        if (usedIndexes.includes(index)) {
+          return
+        }
+        if (this.isInSequence(cards).isValid) {
+          usedIndexes.push(index)
+          isInSequence = true
+        }
+      })
+      if (!isInSequence && isReadyToDeclare) {
+        isReadyToDeclare = false
+        errorMessage = ErrorEnum.SEQUENCE_REQUIRED
+      }
     }
 
     cardGroups.forEach((cards, index) => {
@@ -351,7 +336,7 @@ export class Rummy {
     if (cards.length < 3) {
       return {
         isValid: false,
-        error: 'At least 3 cards needed to make a SEQUENCE',
+        error: ErrorEnum.AT_LEAST_THREE_CARDS_NEEDED_FOR_SEQUENCE,
       }
     }
 
@@ -359,17 +344,7 @@ export class Rummy {
       if (StandardCardHelper.isInDeck(cards, StandardCardName.JOKER) !== -1) {
         return {
           isValid: false,
-          error: 'Joker is not allowed in this game',
-        }
-      }
-    } else {
-      if (
-        this.config.numFlexCardPerGroup <
-        StandardCardHelper.getCountFromDeck(cards, StandardCardName.JOKER)
-      ) {
-        return {
-          isValid: false,
-          error: `only ${this.config.numFlexCardPerGroup} jokers are allowed in 1 SEQUENCE`,
+          error: ErrorEnum.JOKER_NOT_ALLOWED,
         }
       }
     }
@@ -378,67 +353,88 @@ export class Rummy {
       if (wildCardName !== undefined) {
         return {
           isValid: false,
-          error: 'WildCard is not allowed in this game',
+          error: ErrorEnum.WILD_NOT_ALLOWED,
         }
       }
     }
 
-    const tempCards = [...cards]
-    let flexCardsAllowed = this.config.numFlexCardPerGroup
+    let tempCards = [...cards]
     let sequenceNumber
     let suite
     let isInSequence = true
     let isAllCardCheck = false
+    let jokerCardCount = 0
+    let wildCardCount = 0
+
+    while (StandardCardHelper.isInDeck(tempCards, StandardCardName.JOKER) !== -1) {
+      tempCards.splice(StandardCardHelper.isInDeck(tempCards, StandardCardName.JOKER), 1)
+      jokerCardCount++
+    }
+    if (wildCardName !== undefined) {
+      while (StandardCardHelper.isInDeck(tempCards, wildCardName) !== -1) {
+        tempCards.splice(StandardCardHelper.isInDeck(tempCards, wildCardName), 1)
+        wildCardCount++
+      }
+    }
+    tempCards = StandardCardHelper.sortCards(tempCards)
+
+    if (tempCards.length < 2) {
+      return {
+        isValid: false,
+        error: ErrorEnum.AT_LEAST_TWO_NORMAL_CARDS_NEEDED_FOR_SEQUENCE,
+      }
+    }
+
+    if (tempCards.length === 2) {
+      if (tempCards[0].suite === tempCards[1].suite) {
+        if (tempCards[0].number + 1 === tempCards[1].number) {
+          return {
+            isValid: true,
+            points: 0,
+          }
+        } else {
+          if (tempCards[1].number - tempCards[0].number - 1 <= jokerCardCount + wildCardCount) {
+            return {
+              isValid: true,
+              points: 0,
+            }
+          } else {
+            return {
+              isValid: false,
+              error: ErrorEnum.NOT_VALID_SEQUENCE,
+            }
+          }
+        }
+      } else {
+        return {
+          isValid: false,
+          error: ErrorEnum.NOT_VALID_SEQUENCE,
+        }
+      }
+    }
 
     let index = 0
-    let errorMessage = null
     while (isInSequence && !isAllCardCheck) {
       if (sequenceNumber === undefined || suite === undefined) {
-        if (tempCards[index].number === -1) {
-          if (flexCardsAllowed > 0) {
-            index++
-            flexCardsAllowed--
-          } else {
-            isInSequence = false
-            errorMessage = 'can not use more flex cards'
-            break
-          }
-          continue
-        } else if (tempCards[index].name === wildCardName) {
-          if (flexCardsAllowed > 0) {
-            index++
-            flexCardsAllowed--
-          } else {
-            sequenceNumber = tempCards[index].number
-            suite = tempCards[index].suite
-            index++
-          }
-          continue
-        } else {
-          sequenceNumber = tempCards[index].number
-          suite = tempCards[index].suite
-        }
+        sequenceNumber = tempCards[index].number
+        suite = tempCards[index].suite
       } else {
         if (tempCards[index].number === sequenceNumber + 1 && tempCards[index].suite === suite) {
           sequenceNumber = tempCards[index].number
-        } else if (tempCards[index].number === -1) {
-          if (flexCardsAllowed <= 0) {
-            isInSequence = false
-            errorMessage = 'can not use more flex cards'
-            break
-          } else {
-            sequenceNumber++
-            flexCardsAllowed--
-          }
-        } else if (tempCards[index].name === wildCardName) {
-          if (flexCardsAllowed <= 0) {
-            isInSequence = false
-            errorMessage = 'can not use more flex cards'
-            break
-          } else {
-            sequenceNumber++
-            flexCardsAllowed--
-          }
+        } else if (
+          wildCardName !== undefined &&
+          wildCardCount > 0 &&
+          StandardDeck.getNumber(wildCardName) === sequenceNumber + 1 &&
+          StandardDeck.getSuite(wildCardName) === suite
+        ) {
+          wildCardCount--
+          sequenceNumber++
+        } else if (jokerCardCount > 0) {
+          jokerCardCount--
+          sequenceNumber++
+        } else if (wildCardCount > 0) {
+          wildCardCount--
+          sequenceNumber++
         } else {
           isInSequence = false
         }
@@ -449,26 +445,15 @@ export class Rummy {
       index++
     }
 
-    const flexCardsUsed = this.config.numFlexCardPerGroup - flexCardsAllowed
-
-    if (cards.length === 3 && flexCardsUsed >= 2) {
-      return {
-        isValid: false,
-        error: 'You need at least 2 normal cards for SEQUENCE',
-      }
-    }
-
     if (isInSequence) {
       return {
         isValid: true,
-        numOfFlexCardUsed: flexCardsUsed,
         points: 0,
       }
     } else {
       return {
         isValid: false,
-        numOfFlexCardUsed: flexCardsUsed,
-        error: errorMessage ?? 'Not a valid SEQUENCE',
+        error: ErrorEnum.NOT_VALID_SEQUENCE,
       }
     }
   }
@@ -488,13 +473,13 @@ export class Rummy {
     if (cards.length < 3) {
       return {
         isValid: false,
-        error: 'At least 3 cards needed to make a set',
+        error: ErrorEnum.AT_LEAST_THREE_CARDS_NEEDED_FOR_SET,
       }
     }
     if (cards.length > 4) {
       return {
         isValid: false,
-        error: 'Maximum of 4 cards are allowed in 1 set',
+        error: ErrorEnum.MAX_FOUR_CARDS_ALLOWED_FOR_SET,
       }
     }
 
@@ -502,7 +487,7 @@ export class Rummy {
       if (StandardCardHelper.isInDeck(cards, StandardCardName.JOKER) !== -1) {
         return {
           isValid: false,
-          error: 'Joker is not allowed in this game',
+          error: ErrorEnum.JOKER_NOT_ALLOWED,
         }
       }
     }
@@ -511,60 +496,40 @@ export class Rummy {
       if (wildCardName !== undefined) {
         return {
           isValid: false,
-          error: 'WildCard is not allowed in this game',
+          error: ErrorEnum.WILD_NOT_ALLOWED,
         }
-      }
-    }
-
-    if (StandardCardHelper.getCountFromDeck(cards, StandardCardName.JOKER) > 1) {
-      return {
-        isValid: false,
-        error: 'Only 1 JOKER is allowed for SET',
       }
     }
 
     if (StandardCardHelper.hasSameNumber(cards) && !StandardCardHelper.hasPairSuite(cards)) {
       return {
         isValid: true,
-        numOfFlexCardUsed: 0,
         points: 0,
       }
     }
     const tempCards = [...cards]
-    let jokerIndex = StandardCardHelper.isInDeck(tempCards, StandardCardName.JOKER)
-    if (jokerIndex > -1) {
-      tempCards.splice(jokerIndex, 1)
-      if (
-        StandardCardHelper.hasSameNumber(tempCards) &&
-        !StandardCardHelper.hasPairSuite(tempCards)
-      ) {
-        return {
-          isValid: true,
-          numOfFlexCardUsed: 0,
-          points: 0,
-        }
-      }
-    } else {
-      if (wildCardName !== undefined) {
-        jokerIndex = StandardCardHelper.isInDeck(tempCards, wildCardName)
-        if (jokerIndex > -1) {
-          tempCards.splice(jokerIndex, 1)
-          if (
-            StandardCardHelper.hasSameNumber(tempCards) &&
-            !StandardCardHelper.hasPairSuite(tempCards)
-          ) {
-            return {
-              isValid: true,
-              numOfFlexCardUsed: 1,
-              points: 0,
-            }
-          }
-        }
+    while (StandardCardHelper.isInDeck(tempCards, StandardCardName.JOKER) !== -1) {
+      tempCards.splice(StandardCardHelper.isInDeck(tempCards, StandardCardName.JOKER), 1)
+    }
+    if (wildCardName !== undefined) {
+      while (StandardCardHelper.isInDeck(tempCards, wildCardName) !== -1) {
+        tempCards.splice(StandardCardHelper.isInDeck(tempCards, wildCardName), 1)
       }
     }
+
+    if (
+      StandardCardHelper.hasSameNumber(tempCards) &&
+      !StandardCardHelper.hasPairSuite(tempCards)
+    ) {
+      return {
+        isValid: true,
+        points: 0,
+      }
+    }
+
     return {
       isValid: false,
-      error: 'Not a VALID set',
+      error: ErrorEnum.NOT_VALID_SET,
     }
   }
 
@@ -579,19 +544,19 @@ export class Rummy {
     if (cards.length < 3) {
       return {
         isValid: false,
-        error: 'At least 3 cards needed to make a PURE SEQUENCE',
+        error: ErrorEnum.AT_LEAST_THREE_CARDS_NEEDED_FOR_PURE_SEQUENCE,
       }
     }
     if (StandardCardHelper.isInDeck(cards, StandardCardName.JOKER) !== -1) {
       return {
         isValid: false,
-        error: 'Joker is not allowed for PURE SEQUENCE',
+        error: ErrorEnum.JOKER_NOT_ALLOWED_IN_PURE_SEQUENCE,
       }
     }
     if (!StandardCardHelper.hasSameSuite(cards)) {
       return {
         isValid: false,
-        error: 'PURE SEQUENCE needs to have same suites',
+        error: ErrorEnum.SAME_SUITE_NEEDED_FOR_PURE_SEQUENCE,
       }
     }
     const tempCards = [...cards]
@@ -617,13 +582,12 @@ export class Rummy {
     if (isInSequence) {
       return {
         isValid: true,
-        numOfFlexCardUsed: 0,
         points: 0,
       }
     } else {
       return {
         isValid: false,
-        error: 'Not a valid PURE SEQUENCE',
+        error: ErrorEnum.NOT_VALID_PURE_SEQUENCE,
       }
     }
   }

@@ -11,13 +11,6 @@ export interface RummyDeclareCheck {
   isValid: boolean
 
   /**
-   * number of wildcards that are actually used.
-   *
-   * @type {number}
-   */
-  numOfFlexCardUsed?: number
-
-  /**
    * points calculated from given cards
    *
    * @type {number}

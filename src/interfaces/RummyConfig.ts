@@ -43,19 +43,4 @@ export interface RummyConfig {
    * @type {number}
    */
   numCardsPerMeld: number
-
-  /**
-   * how many flexible cards(JOKER + WILD) should there be in 1 meld
-   *
-   * @type {number}
-   */
-  numFlexCardPerMeld: number
-
-  /**
-   * how many flexible cards(JOKER + WILD) should there be in 1 group(SET, SEQUENCE, PURE-SEQUENCE)
-   * if group only has 3 cards in it then only 1 flexible card is allowed no matter what the value is.
-   *
-   * @type {number}
-   */
-  numFlexCardPerGroup: number
 }
