@@ -118,6 +118,16 @@ describe('test the StandardCardHelper helper and all methods in it', () => {
     expect(StandardCardHelper.isInDeck(cards, StandardCardName.DIAMONDS_ACE)).toBe(-1)
   })
 
+  it('test isNumberInDeck() method', () => {
+    const cards = [
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_EIGHT),
+      StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_EIGHT),
+      StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_EIGHT),
+    ]
+    expect(StandardCardHelper.isNumberInDeck(cards, 8)).toBe(0)
+    expect(StandardCardHelper.isNumberInDeck(cards, 5)).toBe(-1)
+  })
+
   it('test getCountFromDeck() method', () => {
     const cards = [
       StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_EIGHT),

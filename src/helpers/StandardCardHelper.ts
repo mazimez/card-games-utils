@@ -119,6 +119,19 @@ export class StandardCardHelper {
   /**
    * @method
    * @static
+   * decide if the given array has the card of given NUMBER in other parameter
+   *
+   * @param {StandardCard[]} cards the array of cards to be checked
+   * @param {number} cardNumberToFind the number that's card needs to be found
+   * @returns {number} the index of the card in array, -1 if it doesn't exist
+   */
+  static isNumberInDeck(cards: StandardCard[], cardNumberToFind: number): number {
+    return cards.findIndex((card) => card.number === cardNumberToFind)
+  }
+
+  /**
+   * @method
+   * @static
    * returns the count of particular card from the given cards
    *
    * @param {StandardCard[]} cards the array of cards to be checked

@@ -42,7 +42,7 @@ export class TeenPatti {
         return TeenPattiHand.PURE_SEQUENCE
       } else {
         if (
-          // 1 exception check for Q,K,A
+          // 1 exception check for Q(12),K(13),A(1/14)
           sortedCards[0].number === 12 &&
           sortedCards[1].number === 13 &&
           sortedCards[2].number === 14

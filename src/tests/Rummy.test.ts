@@ -253,10 +253,37 @@ describe('test the Rummy model and all methods in it', () => {
 
   it('test isInSequence() method', () => {
     const rummyGame = new Rummy(Rummy.makeRummyConfig(true, true, true, true, true, 13))
-    // NOTE::without any flex cards, a sequence is pure sequence(so we only check with flex cards
+    // NOTE::without any flex cards, a sequence is pure sequence(so we focus more on deck with flex cards)
+    // with the exception of Q,K,A - without proper order
+    let correctSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_QUEEN),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_KING),
+    ]
+    expect(rummyGame.isInSequence(correctSequence).isValid).toBe(true)
     // --------------------------------------------------------------------------------------------------------------------------
     // with 1 joker
-    let correctSequence = [
+    correctSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_KING),
+    ]
+    expect(rummyGame.isInSequence(correctSequence).isValid).toBe(true)
+    correctSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_QUEEN),
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_KING),
+    ]
+    expect(rummyGame.isInSequence(correctSequence).isValid).toBe(true)
+    correctSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_TWO),
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_KING),
+    ]
+    expect(rummyGame.isInSequence(correctSequence).isValid).toBe(true)
+    correctSequence = [
       StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
       StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
       StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_THREE),
@@ -300,12 +327,62 @@ describe('test the Rummy model and all methods in it', () => {
       StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_THREE),
     ]
     expect(rummyGame.isInSequence(incorrectSequence).isValid).toBe(false)
+
+    correctSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_TWO),
+    ]
+    expect(rummyGame.isInSequence(correctSequence).isValid).toBe(true)
+    correctSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_KING),
+    ]
+    expect(rummyGame.isInSequence(correctSequence).isValid).toBe(true)
+    correctSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_KING),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_QUEEN),
+    ]
+    expect(rummyGame.isInSequence(correctSequence).isValid).toBe(true)
+    correctSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_KING),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_QUEEN),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_TWO),
+    ]
+    expect(rummyGame.isInSequence(correctSequence).isValid).toBe(true)
     // --------------------------------------------------------------------------------------------------------------------------
     // with 1 wildcard
     correctSequence = [
       StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
       StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_TEN),
       StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_THREE),
+    ]
+    expect(rummyGame.isInSequence(correctSequence, StandardCardName.DIAMONDS_TEN).isValid).toBe(
+      true
+    )
+    correctSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_TWO),
+      StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_TEN),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_KING),
+    ]
+    expect(rummyGame.isInSequence(correctSequence, StandardCardName.DIAMONDS_TEN).isValid).toBe(
+      true
+    )
+    correctSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_QUEEN),
+      StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_TEN),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_KING),
     ]
     expect(rummyGame.isInSequence(correctSequence, StandardCardName.DIAMONDS_TEN).isValid).toBe(
       true
@@ -443,18 +520,109 @@ describe('test the Rummy model and all methods in it', () => {
   it('test isInPureSequence() method', () => {
     const rummyGame = new Rummy(Rummy.makeRummyConfig(true, true, true, true, true, 13))
     // without any joker or wildcard
-    const correctPureSequence = [
+    let correctPureSequence = [
       StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
       StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_TWO),
       StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_THREE),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_FOUR),
     ]
     expect(rummyGame.isInPureSequence(correctPureSequence).isValid).toBe(true)
+    // without proper order
+    correctPureSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_TWO),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_THREE),
+    ]
+    // with the exception of Q,K,A
+    correctPureSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_QUEEN),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_KING),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+    ]
+    expect(rummyGame.isInPureSequence(correctPureSequence).isValid).toBe(true)
+    // with the exception of Q,K,A - without proper order
+    correctPureSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_QUEEN),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_KING),
+    ]
+    expect(rummyGame.isInPureSequence(correctPureSequence).isValid).toBe(true)
+    // with the exception of K,A,2
+    correctPureSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_KING),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_TWO),
+    ]
+    expect(rummyGame.isInPureSequence(correctPureSequence).isValid).toBe(true)
+    // with the exception of K,A,2- without proper order
+    correctPureSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_KING),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_TWO),
+    ]
+    expect(rummyGame.isInPureSequence(correctPureSequence).isValid).toBe(true)
+    // Valid pure sequence with face cards in different order
+    correctPureSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_KING),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_QUEEN),
+    ]
+    expect(rummyGame.isInPureSequence(correctPureSequence).isValid).toBe(true)
+
+    // Valid pure sequence with four cards including face card
+    correctPureSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_JACK),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_QUEEN),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_KING),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+    ]
+    expect(rummyGame.isInPureSequence(correctPureSequence).isValid).toBe(true)
+
+    // Valid pure sequence with face cards
+    correctPureSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_QUEEN),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_KING),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+    ]
+    expect(rummyGame.isInPureSequence(correctPureSequence).isValid).toBe(true)
+
     let incorrectPureSequence = [
       StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
       StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_TWO),
       StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_THREE),
     ]
     expect(rummyGame.isInPureSequence(incorrectPureSequence).isValid).toBe(false)
+
+    // Invalid pure sequence with only two cards
+    incorrectPureSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_TWO),
+    ]
+    expect(rummyGame.isInPureSequence(incorrectPureSequence).isValid).toBe(false)
+    // Invalid pure sequence with repeated cards
+    incorrectPureSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_THREE),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_THREE),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_FIVE),
+    ]
+    expect(rummyGame.isInPureSequence(incorrectPureSequence).isValid).toBe(false)
+
+    // Invalid pure sequence with a gap between cards
+    incorrectPureSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_THREE),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_FOUR),
+    ]
+    expect(rummyGame.isInPureSequence(incorrectPureSequence).isValid).toBe(false)
+    // Invalid pure sequence with duplicate face cards
+    incorrectPureSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_JACK),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_QUEEN),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_JACK),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+    ]
+    expect(rummyGame.isInPureSequence(incorrectPureSequence).isValid).toBe(false)
+
     // with 1 joker
     incorrectPureSequence = [
       StandardCardHelper.makeStandardCard(StandardCardName.JOKER),

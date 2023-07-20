@@ -376,6 +376,13 @@ export class Rummy {
         wildCardCount++
       }
     }
+
+    let shouldSkipOnce = false
+    if (StandardCardHelper.isNumberInDeck(cards, 1) !== -1) {
+      if (StandardCardHelper.isNumberInDeck(cards, 13) !== -1) {
+        shouldSkipOnce = true
+      }
+    }
     tempCards = StandardCardHelper.sortCards(tempCards)
 
     if (tempCards.length < 2) {
@@ -399,6 +406,18 @@ export class Rummy {
               points: 0,
             }
           } else {
+            if (tempCards[1].number !== tempCards[0].number) {
+              if (
+                (tempCards[1].number === 1 && tempCards[0].number === 13) ||
+                (tempCards[0].number === 1 && tempCards[1].number === 13)
+              ) {
+                return {
+                  isValid: true,
+                  points: 0,
+                }
+              }
+            }
+
             return {
               isValid: false,
               error: ErrorEnum.NOT_VALID_SEQUENCE,
@@ -420,6 +439,9 @@ export class Rummy {
         suite = tempCards[index].suite
       } else {
         if (tempCards[index].number === sequenceNumber + 1 && tempCards[index].suite === suite) {
+          sequenceNumber = tempCards[index].number
+        } else if (Math.abs(sequenceNumber - tempCards[index].number) > 1 && shouldSkipOnce) {
+          shouldSkipOnce = false
           sequenceNumber = tempCards[index].number
         } else if (
           wildCardName !== undefined &&
@@ -559,7 +581,15 @@ export class Rummy {
         error: ErrorEnum.SAME_SUITE_NEEDED_FOR_PURE_SEQUENCE,
       }
     }
-    const tempCards = [...cards]
+    let tempCards = [...cards]
+
+    let shouldSkipOnce = false
+    if (StandardCardHelper.isNumberInDeck(cards, 1) !== -1) {
+      if (StandardCardHelper.isNumberInDeck(cards, 13) !== -1) {
+        shouldSkipOnce = true
+      }
+    }
+    tempCards = StandardCardHelper.sortCards(tempCards)
     let isInSequence = true
     let isAllCardCheck = false
     let sequenceNumber
@@ -569,6 +599,9 @@ export class Rummy {
         sequenceNumber = tempCards[index].number
       } else {
         if (tempCards[index].number === sequenceNumber + 1) {
+          sequenceNumber = tempCards[index].number
+        } else if (shouldSkipOnce) {
+          shouldSkipOnce = false
           sequenceNumber = tempCards[index].number
         } else {
           isInSequence = false
