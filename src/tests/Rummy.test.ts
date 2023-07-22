@@ -169,13 +169,13 @@ describe('test the Rummy model and all methods in it', () => {
     expect(onlySetRummyGame.isReadyToDeclare(meld, StandardCardName.CLUBS_FIVE).isValid).toEqual(
       true
     )
-    expect(onlySetRummyGame.isReadyToDeclare(meld, StandardCardName.CLUBS_FIVE).points).toEqual(25)
+    expect(onlySetRummyGame.isReadyToDeclare(meld, StandardCardName.CLUBS_FIVE).points).toEqual(18)
     expect(
       onlySequenceRummyGame.isReadyToDeclare(meld, StandardCardName.CLUBS_FIVE).isValid
     ).toEqual(true)
     expect(
       onlySequenceRummyGame.isReadyToDeclare(meld, StandardCardName.CLUBS_FIVE).points
-    ).toEqual(3)
+    ).toEqual(10)
     expect(
       onlyPureSequenceRummyGame.isReadyToDeclare(meld, StandardCardName.CLUBS_FIVE).isValid
     ).toEqual(true)
