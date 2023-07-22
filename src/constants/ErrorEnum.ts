@@ -20,4 +20,5 @@ export enum ErrorEnum {
   SAME_SUITE_NEEDED_FOR_PURE_SEQUENCE = 'PURE SEQUENCE needs to have same suites',
   NOT_VALID_PURE_SEQUENCE = 'Not a valid PURE SEQUENCE',
   INVALID_DATA = 'Invalid data',
+  AT_LEAST_ONE_NORMAL_CARD_NEEDED_FOR_SET = 'You need at least 1 normal card for SET',
 }

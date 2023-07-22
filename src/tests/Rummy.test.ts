@@ -90,14 +90,54 @@ describe('test the Rummy model and all methods in it', () => {
     expect(meld.groups).toEqual([[0, 3], [1, 4], [2, 5], [6, 7, 8], []])
   })
 
+  it('test calculatePoints() method', () => {
+    let points = Rummy.calculatePoints([
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+      StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_ACE),
+      StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_ACE),
+    ])
+    expect(points).toEqual(3)
+
+    points = Rummy.calculatePoints(
+      [
+        StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+        StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_ACE),
+        StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_ACE),
+      ],
+      StandardCardName.DIAMONDS_ACE
+    )
+    expect(points).toEqual(2)
+
+    points = Rummy.calculatePoints(
+      [
+        StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+        StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_ACE),
+        StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_ACE),
+      ],
+      StandardCardName.DIAMONDS_ACE
+    )
+    expect(points).toEqual(1)
+
+    points = Rummy.calculatePoints(
+      [
+        StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+        StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_ACE),
+        StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_JACK),
+        StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_KING),
+      ],
+      StandardCardName.DIAMONDS_ACE
+    )
+    expect(points).toEqual(20)
+  })
+
   it('test isReadyToDeclare() method', () => {
-    // const onlySetRummyGame = new Rummy(Rummy.makeRummyConfig(true, false, false, true, true, 9))
-    // const onlySequenceRummyGame = new Rummy(
-    //   Rummy.makeRummyConfig(false, true, false, true, true, 9)
-    // )
-    // const onlyPureSequenceRummyGame = new Rummy(
-    //   Rummy.makeRummyConfig(false, false, true, true, true, 9)
-    // )
+    const onlySetRummyGame = new Rummy(Rummy.makeRummyConfig(true, false, false, true, true, 9))
+    const onlySequenceRummyGame = new Rummy(
+      Rummy.makeRummyConfig(false, true, false, true, true, 9)
+    )
+    const onlyPureSequenceRummyGame = new Rummy(
+      Rummy.makeRummyConfig(false, false, true, true, true, 9)
+    )
     const allRuleRummyGame = new Rummy(Rummy.makeRummyConfig(true, true, true, true, true, 9))
     const noJokerRummyGame = new Rummy(Rummy.makeRummyConfig(true, true, true, false, true, 9))
     const noWildRummyGame = new Rummy(Rummy.makeRummyConfig(true, true, true, true, false, 9))
@@ -113,7 +153,7 @@ describe('test the Rummy model and all methods in it', () => {
         StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_FIVE),
         StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
         StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_SEVEN),
-        // PURE SEQUENCE
+        // PURE SEQUENCE / SEQUENCE
         StandardCardHelper.makeStandardCard(StandardCardName.SPADES_FIVE),
         StandardCardHelper.makeStandardCard(StandardCardName.SPADES_SIX),
         StandardCardHelper.makeStandardCard(StandardCardName.SPADES_SEVEN),
@@ -124,6 +164,26 @@ describe('test the Rummy model and all methods in it', () => {
         [6, 7, 8],
       ]
     )
+
+    // CORRECT ONES
+    expect(onlySetRummyGame.isReadyToDeclare(meld, StandardCardName.CLUBS_FIVE).isValid).toEqual(
+      true
+    )
+    expect(onlySetRummyGame.isReadyToDeclare(meld, StandardCardName.CLUBS_FIVE).points).toEqual(25)
+    expect(
+      onlySequenceRummyGame.isReadyToDeclare(meld, StandardCardName.CLUBS_FIVE).isValid
+    ).toEqual(true)
+    expect(
+      onlySequenceRummyGame.isReadyToDeclare(meld, StandardCardName.CLUBS_FIVE).points
+    ).toEqual(3)
+    expect(
+      onlyPureSequenceRummyGame.isReadyToDeclare(meld, StandardCardName.CLUBS_FIVE).isValid
+    ).toEqual(true)
+    expect(
+      onlyPureSequenceRummyGame.isReadyToDeclare(meld, StandardCardName.CLUBS_FIVE).points
+    ).toEqual(10)
+
+    // INCORRECT ONES
     expect(noWildRummyGame.isReadyToDeclare(meld, StandardCardName.CLUBS_FIVE).isValid).toEqual(
       false
     )
@@ -134,121 +194,6 @@ describe('test the Rummy model and all methods in it', () => {
     expect(noJokerRummyGame.isReadyToDeclare(meld).error).toEqual(ErrorEnum.JOKER_NOT_ALLOWED)
     expect(allRuleRummyGame.isReadyToDeclare(meld).isValid).toEqual(true)
     expect(allRuleRummyGame.isReadyToDeclare(meld).points).toEqual(0)
-    // // with 1 joker
-    // meld = rummyGame.makeMeld(
-    //   [
-    //     // SET
-    //     StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_ACE),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_ACE),
-    //     // SEQUENCE
-    //     StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_FIVE),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_SIX),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_SEVEN),
-    //     // PURE SEQUENCE
-    //     StandardCardHelper.makeStandardCard(StandardCardName.SPADES_FIVE),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.SPADES_SIX),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.SPADES_SEVEN),
-    //   ],
-    //   [
-    //     [0, 1, 2],
-    //     [3, 4, 5],
-    //     [6, 7, 8],
-    //   ]
-    // )
-    // expect(rummyGame.isReadyToDeclare(meld)).toEqual(true)
-    // // with 2 joker
-    // meld = rummyGame.makeMeld(
-    //   [
-    //     // SET
-    //     StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_ACE),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_ACE),
-    //     // SEQUENCE
-    //     StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_FIVE),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_SEVEN),
-    //     // PURE SEQUENCE
-    //     StandardCardHelper.makeStandardCard(StandardCardName.SPADES_FIVE),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.SPADES_SIX),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.SPADES_SEVEN),
-    //   ],
-    //   [
-    //     [0, 1, 2],
-    //     [3, 4, 5],
-    //     [6, 7, 8],
-    //   ]
-    // )
-    // expect(rummyGame.isReadyToDeclare(meld)).toEqual(true)
-    // // with 1 wildcard
-    // meld = rummyGame.makeMeld(
-    //   [
-    //     // SET
-    //     StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_TEN),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_ACE),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_ACE),
-    //     // SEQUENCE
-    //     StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_FIVE),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_SIX),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_SEVEN),
-    //     // PURE SEQUENCE
-    //     StandardCardHelper.makeStandardCard(StandardCardName.SPADES_FIVE),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.SPADES_SIX),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.SPADES_SEVEN),
-    //   ],
-    //   [
-    //     [0, 1, 2],
-    //     [3, 4, 5],
-    //     [6, 7, 8],
-    //   ]
-    // )
-    // expect(rummyGame.isReadyToDeclare(meld, StandardCardName.DIAMONDS_TEN)).toEqual(true)
-    // // with 2 wildcard
-    // meld = rummyGame.makeMeld(
-    //   [
-    //     // SET
-    //     StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_TEN),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_ACE),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_ACE),
-    //     // SEQUENCE
-    //     StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_FIVE),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_TEN),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_SEVEN),
-    //     // PURE SEQUENCE
-    //     StandardCardHelper.makeStandardCard(StandardCardName.SPADES_FIVE),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.SPADES_SIX),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.SPADES_SEVEN),
-    //   ],
-    //   [
-    //     [0, 1, 2],
-    //     [3, 4, 5],
-    //     [6, 7, 8],
-    //   ]
-    // )
-    // expect(rummyGame.isReadyToDeclare(meld, StandardCardName.DIAMONDS_TEN)).toEqual(true)
-    // // with 1 wildcard and 1 joker
-    // meld = rummyGame.makeMeld(
-    //   [
-    //     // SET
-    //     StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_ACE),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_ACE),
-    //     // SEQUENCE
-    //     StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_FIVE),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_TEN),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_SEVEN),
-    //     // PURE SEQUENCE
-    //     StandardCardHelper.makeStandardCard(StandardCardName.SPADES_FIVE),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.SPADES_SIX),
-    //     StandardCardHelper.makeStandardCard(StandardCardName.SPADES_SEVEN),
-    //   ],
-    //   [
-    //     [0, 1, 2],
-    //     [3, 4, 5],
-    //     [6, 7, 8],
-    //   ]
-    // )
-    // expect(rummyGame.isReadyToDeclare(meld, StandardCardName.DIAMONDS_TEN)).toEqual(true)
   })
 
   it('test isInSequence() method', () => {
@@ -515,6 +460,17 @@ describe('test the Rummy model and all methods in it', () => {
       StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_ACE),
     ]
     expect(rummyGame.isInSet(incorrectSet, StandardCardName.DIAMONDS_TEN).isValid).toBe(true)
+
+    // with 3 jokers
+    incorrectSet = [
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+    ]
+    expect(rummyGame.isInSet(incorrectSet, StandardCardName.DIAMONDS_TEN).isValid).toBe(false)
+    expect(rummyGame.isInSet(incorrectSet, StandardCardName.DIAMONDS_TEN).error).toBe(
+      ErrorEnum.AT_LEAST_ONE_NORMAL_CARD_NEEDED_FOR_SET
+    )
   })
 
   it('test isInPureSequence() method', () => {

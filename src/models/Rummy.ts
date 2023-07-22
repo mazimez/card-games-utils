@@ -255,7 +255,13 @@ export class Rummy {
         if (usedIndexes.includes(index)) {
           return
         }
-        if (this.isInSet(cards).isValid) {
+        let temp
+        if (wildCardName === undefined) {
+          temp = this.isInSet(cards)
+        } else {
+          temp = this.isInSet(cards, wildCardName)
+        }
+        if (temp.isValid) {
           usedIndexes.push(index)
           isInSet = true
         }
@@ -289,7 +295,14 @@ export class Rummy {
         if (usedIndexes.includes(index)) {
           return
         }
-        if (this.isInSequence(cards).isValid) {
+
+        let temp
+        if (wildCardName === undefined) {
+          temp = this.isInSequence(cards)
+        } else {
+          temp = this.isInSequence(cards, wildCardName)
+        }
+        if (temp.isValid) {
           usedIndexes.push(index)
           isInSequence = true
         }
@@ -536,6 +549,13 @@ export class Rummy {
     if (wildCardName !== undefined) {
       while (StandardCardHelper.isInDeck(tempCards, wildCardName) !== -1) {
         tempCards.splice(StandardCardHelper.isInDeck(tempCards, wildCardName), 1)
+      }
+    }
+
+    if (tempCards.length <= 0) {
+      return {
+        isValid: false,
+        error: ErrorEnum.AT_LEAST_ONE_NORMAL_CARD_NEEDED_FOR_SET,
       }
     }
 

@@ -12,7 +12,7 @@
 
 Card Games Utils is a comprehensive utility package designed to streamline the implementation of various card games, such as TeenPatti and Rummy. Our package offers a range of helpful methods and tools to facilitate the development of game logic for these popular card games.
 
-At present, Card Games Utils features a TeenPatti game logic and Rummy game logic implementation. other games will be added soon.
+At present, Card Games Utils features a TeenPatti game logic and Rummy game logic implementation. other games like POKER will be added soon.
 
 If you find this project helpful, please consider sponsoring its development by visiting [this page](https://github.com/sponsors/mazimez).
 
@@ -31,6 +31,8 @@ If you find this project helpful, please consider sponsoring its development by 
 
 - <b>Rummy</b>
   - [How to Use](#How-to-Use-rummy)
+  - [RummyConfig Interface](#RummyConfig)
+  - [RummyDeclareCheck Interface](#RummyDeclareCheck)
   - [Meld Interface](#Meld)
   - [Rummy Model](#Rummy)
 
@@ -346,9 +348,26 @@ The `Hand` is used to represent the real-world hand of cards in the Teen Patti g
 
 # How-to-Use-rummy
 
-- here is 1 example of how 1 Rummy game can be handled by this package.
 - keep in mind that package provide only logical part of games, you still need to handle the user's card manipulation
-- since Rummy's rules has lot of variations, new updates will make this Rummy Module configurable with different rules so it can meet your needs.
+- there can be many variations of Rummy game, this package allows you configure the rules before starting the game
+- there some rules that will stay same for any variation of rummy, specially for deciding the valid SET, SEQUENCE and PURE_SEQUENCE. those fixed rules are given below:
+  - `SET` : set needs to have at least 3 cards in it.
+    - JOKER/WILD-CARD is allowed in the SET
+    - At least 1 card needs to be a normal card(no JOKER/WILD-CARD)
+    - cards in `SET` must have same rank(number)
+    - cards in `SET` must have different suites(except JOKER/WILD-CARD)
+    - cards count can not be more then 4 and less then 3.
+  - `SEQUENCE` : sequence needs to have at least 3 cards in it
+    - JOKER/WILD-CARD is allowed in the SEQUENCE
+    - At least 2 cards needs to be a normal cards(no JOKER/WILD-CARD)
+    - cards in `SEQUENCE` must have same suites(except JOKER/WILD-CARD)
+    - cards in `SEQUENCE` must be in sequence(except JOKER/WILD-CARD)(Q-K-A is also valid)
+    - no limit on cards count/length
+  - `PURE-SEQUENCE` : pure-sequence needs to have at least 3 cards in it
+    - JOKER/WILD-CARD is `NOT` allowed in the PURE-SEQUENCE
+    - cards in `PURE-SEQUENCE` must have same suites
+    - cards in `PURE-SEQUENCE` must be in sequence(Q-K-A is also valid)
+    - no limit on cards count/length
 
 ```javascript
 import { CardDeck, Rummy, StandardDeck } from 'card-games-utils'
@@ -372,18 +391,24 @@ let remainingCards = distributedCardsSet[1]
 //taking 1 card from remaining deck and setting it as a WildCard
 let wildCard = remainingCards.pop()
 
+//making the rummy config all the desired rules
+const rummyConfig = Rummy.makeRummyConfig(true, true, true, true, true, 9)
+
+//creating new instance of Rummy with desired rules
+const rummyGame = new Rummy(rummyConfig)
+
 //making melds for each player - you can define the groups any way you want
-let playerOneMeld = Rummy.makeMeld(distributedCards[0], [
+let playerOneMeld = rummyGame.makeMeld(distributedCards[0], [
   [0, 1, 2],
   [3, 4, 5],
   [6, 7, 8],
 ])
-let playerTwoMeld = Rummy.makeMeld(distributedCards[1], [
+let playerTwoMeld = rummyGame.makeMeld(distributedCards[1], [
   [0, 1, 2],
   [3, 4, 5],
   [6, 7, 8],
 ])
-let playerThreeMeld = Rummy.makeMeld(distributedCards[2], [
+let playerThreeMeld = rummyGame.makeMeld(distributedCards[2], [
   [0, 1, 2],
   [3, 4, 5],
   [6, 7, 8],
@@ -403,23 +428,57 @@ let players = [playerOneMeld, playerTwoMeld, playerThreeMeld]
 let isPlayerDeclared = false
 
 players.forEach((playerMeld, index) => {
-  if (Rummy.isReadyToDeclare(playerMeld, wildCard.name)) {
-    console.log(`player ${index + 1} has declared and won`)
+  if (rummyGame.isReadyToDeclare(playerMeld, wildCard.name).isValid) {
+    console.log(`player ${players[index].name} has declared and won`)
     isPlayerDeclared = true
   }
 })
+
+//if not player is ready to declare, then logging each players points
 if (!isPlayerDeclared) {
   console.log(`no player is ready to declare`)
+  players.forEach((playerMeld, index) => {
+    console.log(
+      `player ${players[index].name} has ${
+        rummyGame.isReadyToDeclare(playerMeld, wildCard.name).points
+      } points`
+    )
+  })
 }
 ```
 
+# RummyConfig
+
+The `RummyConfig` is used to define the rules for the rummy game, it is defined in the [RummyConfig](src/interfaces/RummyConfig.ts) interface.
+
+A `RummyConfig` object has the following properties:
+
+- `isSetRequired`: A Boolean indicating that is `set` group of cards is required for any meld to be able to declare
+- `isSequenceRequired`: A Boolean indicating that is `sequence` group of cards is required for any meld to be able to declare
+- `isPureSequenceRequired`: A Boolean indicating that is `pure-sequence` group of cards is required for any meld to be able to declare
+- `isJokerAllowed`: A Boolean indicating that is JOKER type of card is allowed in game or not.
+- `isWildAllowed`: A Boolean indicating that is WILD-CARD is allowed in game or not.
+- `numCardsPerMeld`: the number of cards allowed in 1 meld
+
+# RummyDeclareCheck
+
+The `RummyDeclareCheck` is used to decide weather player's cards are valid and ready to declare or not. it is defined in the [RummyDeclareCheck](src/interfaces/RummyDeclareCheck.ts) interface.
+
+this interface is returned by most of the methods in `Rummy` module.
+
+A `RummyDeclareCheck` object has the following properties:
+
+- `isValid`: A Boolean indicating that is the player's cards valid or not.
+- `points`: number of points the player's cards are holding.
+- `error`: the string indicating the problem that makes the cards inValid.
+
 # Meld
 
-The `Meld` represents a meld in Teen Patti, which is a combination of 13 or more standard playing cards. It is defined in the [Meld](src/interfaces/Meld.ts) interface.
+The `Meld` represents a meld in Teen Patti, which is a combination of standard playing cards. It is defined in the [Meld](src/interfaces/Meld.ts) interface.
 
 A `Meld` object has the following properties:
 
-- `cards`: An array of 13 or more [StandardCard](src/interfaces/StandardCard.ts) objects that make up the Meld.
+- `cards`: An array of [StandardCard](src/interfaces/StandardCard.ts) objects that make up the Meld.
 - `groups`: A Multidimensional array dividing the cards array into different groups by it's indexes. this different group of indexes is used to make different set(like Sequence, pure Sequence).
 
 The `Meld` is used to represent the real-world meld of cards in the Rummy game. It allows you to store and manipulate the cards within a meld, you can change the position of card just by changing it from group array and also transfer it into different group and you can also add/remove card from the `cards` array just like the real-word Rummy game.
@@ -436,7 +495,10 @@ The `Meld` is used to represent the real-world meld of cards in the Rummy game. 
   ```javascript
   import { Rummy, StandardCardHelper, StandardCardName } from 'card-games-utils'
 
-  let meld = Rummy.makeMeld(
+  const rummyConfig = Rummy.makeRummyConfig(true, true, true, true, true, 9)
+  const rummyGame = new Rummy(rummyConfig)
+
+  let meld = rummyGame.makeMeld(
     [
       //SET
       StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
@@ -476,7 +538,10 @@ The `Meld` is used to represent the real-world meld of cards in the Rummy game. 
   ```javascript
   import { Rummy, StandardCardHelper, StandardCardName } from 'card-games-utils'
 
-  let meld = Rummy.makeMeld(
+  const rummyConfig = Rummy.makeRummyConfig(true, true, true, true, true, 9)
+  const rummyGame = new Rummy(rummyConfig)
+
+  let meld = rummyGame.makeMeld(
     [
       //SET
       StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
@@ -499,7 +564,7 @@ The `Meld` is used to represent the real-world meld of cards in the Rummy game. 
   )
 
   //prints the array of card divided into 3 parts based on groups array of meld
-  console.log(Rummy.getCardGroup(meld))
+  console.log(rummyGame.getCardGroup(meld))
   ```
 
   - `sortMeld`: this will rearrange the groups from given meld to separate all the cards from same suite into separate group
@@ -509,7 +574,9 @@ The `Meld` is used to represent the real-world meld of cards in the Rummy game. 
 
   ```javascript
   import { Rummy, StandardCardHelper, StandardCardName } from 'card-games-utils'
-  let meld = Rummy.makeMeld(
+  const rummyConfig = Rummy.makeRummyConfig(true, true, true, true, true, 9)
+  const rummyGame = new Rummy(rummyConfig)
+  let meld = rummyGame.makeMeld(
     [
       //SET
       StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
@@ -530,83 +597,106 @@ The `Meld` is used to represent the real-world meld of cards in the Rummy game. 
       [6, 7, 8],
     ]
   )
-  //logs true
-  console.log(Rummy.isReadyToDeclare(meld))
+  //logs the RummyDeclareCheck object
+  console.log(rummyGame.isReadyToDeclare(meld))
   ```
 
   - `isInSequence`: this method checks is the given cards are in sequence.
   - it takes cards array(StandardCard[]) and also 1 more optional parameter of `wildCardName` that's the name of wildCard that will considered as JOKER if needed.
   - the if the cards array contains real joker then that would be considered too.
-  - keep in mind that 1 group of cards can only have 1 Real joker and 1 WildCard, if there are more then that then it would not be considered as a valid sequence.
-  - in future update, these rule will be `configurable` then you can decide how this logic will work
 
   ```javascript
   import { Rummy, StandardCardHelper, StandardCardName } from 'card-games-utils'
+  const rummyConfig = Rummy.makeRummyConfig(true, true, true, true, true, 9)
+  const rummyGame = new Rummy(rummyConfig)
   let cards = [
     StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
     StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_TWO),
     StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_FIVE),
   ]
-  //logs false(since this cards are not in sequence)
-  console.log(Rummy.isInSequence(cards))
+  //logs RummyDeclareCheck object as false(since this cards are not in sequence)
+  console.log(rummyGame.isInSequence(cards))
   cards = [
     StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
     StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_TWO),
     StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_FIVE),
   ]
-  //logs true(since CLUBS_FIVE is used as wild card)
-  console.log(Rummy.isInSequence(cards, StandardCardName.CLUBS_FIVE))
+  //logs RummyDeclareCheck object as true(since CLUBS_FIVE is used as wild card)
+  console.log(rummyGame.isInSequence(cards, StandardCardName.CLUBS_FIVE))
   cards = [
     StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
     StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
     StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_FIVE),
   ]
-  //logs true(since CLUBS_FIVE is used as wild card and JOKER will work as real joker)
-  console.log(Rummy.isInSequence(cards, StandardCardName.CLUBS_FIVE))
+  //logs RummyDeclareCheck object as false(since at least 2 normal card is required for sequence)
+  console.log(rummyGame.isInSequence(cards, StandardCardName.CLUBS_FIVE))
   ```
 
   - `isInPureSequence`: this method checks is the given cards are in pure sequence.
   - it takes cards array(StandardCard[]) and since it's pure sequence, any JOKER or wildcard wont work here, it needs to be PURE sequence
-  - in future update, these rule will be `configurable` then you can decide how this logic will work
 
   ```javascript
   import { Rummy, StandardCardHelper, StandardCardName } from 'card-games-utils'
+  const rummyConfig = Rummy.makeRummyConfig(true, true, true, true, true, 9)
+  const rummyGame = new Rummy(rummyConfig)
   let cards = [
     StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
     StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_TWO),
     StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_THREE),
   ]
-  //logs true since the cards are in pur sequence
-  console.log(Rummy.isInPureSequence(cards))
+  //logs RummyDeclareCheck object as true since the cards are in pur sequence
+  console.log(rummyGame.isInPureSequence(cards))
   ```
 
   - `isInSet`: this method checks is the given cards are in SET.
   - it takes cards array(StandardCard[]) and also 1 more optional parameter of `wildCardName` that's the name of wildCard that will considered as JOKER if needed.
-  - in future update, these rule will be `configurable` then you can decide how this logic will work
 
   ```javascript
   import { Rummy, StandardCardHelper, StandardCardName } from 'card-games-utils'
+  const rummyConfig = Rummy.makeRummyConfig(true, true, true, true, true, 9)
+  const rummyGame = new Rummy(rummyConfig)
   let cards = [
     StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
     StandardCardHelper.makeStandardCard(StandardCardName.SPADES_ACE),
     StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_ACE),
   ]
-  //logs true
-  console.log(Rummy.isInSet(cards))
+  //logs RummyDeclareCheck object as true
+  console.log(rummyGame.isInSet(cards))
   ```
 
-  - `isReadyToDeclare`: decide if given meld is ready to declare. it just check in all the groups from meld and if there is 1 group with 1 Set, 1 Sequence and 1 pure Sequence.
+  - `isReadyToDeclare`: decide if given meld is ready to declare. it just check in all the groups from meld and if it satisfied the requirement with the configured rules then is returns `RummyDeclareCheck` object as true, otherwise it returns false.
   - if takes `meld` as the first parameter and a `WildCard` as second parameter. this `WildCard` is to make a `SET` or `SEQUENCE` with that wild-card
-  - it returns the Boolean indicating that is this meld ready for declaring or not, thus deciding this is a winner or not.
-  - the logic is based on the other 3 functions explained above, so this method does not require any configuration.
+  - it returns the `RummyDeclareCheck` indicating that is this meld ready for declaring or not, thus deciding this is a winner or not.
+  - the logic is based on the other 3 functions explained above.
 
   ```javascript
   import { Rummy, StandardCardHelper, StandardCardName } from 'card-games-utils'
-  let cards = [
-    StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
-    StandardCardHelper.makeStandardCard(StandardCardName.SPADES_ACE),
-    StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_ACE),
-  ]
-  //logs true
-  console.log(Rummy.isInSet(cards))
+
+  const rummyConfig = Rummy.makeRummyConfig(true, true, true, true, true, 9)
+  const rummyGame = new Rummy(rummyConfig)
+
+  const meld = rummyGame.makeMeld(
+    [
+      // SET
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+      StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_ACE),
+      StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_ACE),
+      // SEQUENCE
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_FIVE),
+      StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_THREE),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_SEVEN),
+      // PURE SEQUENCE
+      StandardCardHelper.makeStandardCard(StandardCardName.SPADES_FIVE),
+      StandardCardHelper.makeStandardCard(StandardCardName.SPADES_SIX),
+      StandardCardHelper.makeStandardCard(StandardCardName.SPADES_SEVEN),
+    ],
+    [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+    ]
+  )
+
+  //logs RummyDeclareCheck object as true.
+  console.log(rummyGame.isReadyToDeclare(meld, StandardCardName.DIAMONDS_THREE))
   ```
