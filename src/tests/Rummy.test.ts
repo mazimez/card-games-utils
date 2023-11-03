@@ -143,7 +143,7 @@ describe('test the Rummy model and all methods in it', () => {
     const noWildRummyGame = new Rummy(Rummy.makeRummyConfig(true, true, true, true, false, 9))
 
     // without any joker or wildcard
-    const meld = noWildRummyGame.makeMeld(
+    let meld = noWildRummyGame.makeMeld(
       [
         // SET
         StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
@@ -194,6 +194,39 @@ describe('test the Rummy model and all methods in it', () => {
     expect(noJokerRummyGame.isReadyToDeclare(meld).error).toEqual(ErrorEnum.JOKER_NOT_ALLOWED)
     expect(allRuleRummyGame.isReadyToDeclare(meld).isValid).toEqual(true)
     expect(allRuleRummyGame.isReadyToDeclare(meld).points).toEqual(0)
+
+    // special case with 3 pure sequence and 1 set(1 pure sequence is with wildcard, so it's actually a sequence)
+    const specialRuleRummyGame = new Rummy(Rummy.makeRummyConfig(true, true, true, true, true, 13))
+    meld = specialRuleRummyGame.makeMeld(
+      [
+        // PURE SEQUENCE
+        StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_ACE),
+        StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_KING),
+        StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_QUEEN),
+        // PURE SEQUENCE
+        StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_ACE),
+        StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_KING),
+        StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_QUEEN),
+        // PURE SEQUENCE / SEQUENCE
+        StandardCardHelper.makeStandardCard(StandardCardName.SPADES_FIVE),
+        StandardCardHelper.makeStandardCard(StandardCardName.SPADES_SIX),
+        StandardCardHelper.makeStandardCard(StandardCardName.SPADES_SEVEN),
+        StandardCardHelper.makeStandardCard(StandardCardName.SPADES_EIGHT),
+        // SET
+        StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_NINE),
+        StandardCardHelper.makeStandardCard(StandardCardName.SPADES_NINE),
+        StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_NINE),
+      ],
+      [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8, 9],
+        [10, 11, 12],
+      ]
+    )
+    expect(
+      specialRuleRummyGame.isReadyToDeclare(meld, StandardCardName.DIAMONDS_EIGHT).isValid
+    ).toEqual(true)
   })
 
   it('test isInSequence() method', () => {
@@ -308,7 +341,7 @@ describe('test the Rummy model and all methods in it', () => {
     // with 1 wildcard
     correctSequence = [
       StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
-      StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_TEN),
+      StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_TEN),
       StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_THREE),
     ]
     expect(rummyGame.isInSequence(correctSequence, StandardCardName.DIAMONDS_TEN).isValid).toBe(
@@ -316,7 +349,7 @@ describe('test the Rummy model and all methods in it', () => {
     )
     correctSequence = [
       StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_TWO),
-      StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_TEN),
+      StandardCardHelper.makeStandardCard(StandardCardName.SPADES_TEN),
       StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
       StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_KING),
     ]
@@ -325,7 +358,7 @@ describe('test the Rummy model and all methods in it', () => {
     )
     correctSequence = [
       StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_QUEEN),
-      StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_TEN),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_TEN),
       StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
       StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_KING),
     ]
@@ -343,7 +376,7 @@ describe('test the Rummy model and all methods in it', () => {
     correctSequence = [
       StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
       StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_TWO),
-      StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_TEN),
+      StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_TEN),
     ]
     expect(rummyGame.isInSequence(correctSequence, StandardCardName.DIAMONDS_TEN).isValid).toBe(
       true
@@ -376,7 +409,7 @@ describe('test the Rummy model and all methods in it', () => {
     // with 2 wildcard
     incorrectSequence = [
       StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_TEN),
-      StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_TEN),
+      StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_TEN),
       StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_THREE),
     ]
     expect(rummyGame.isInSequence(incorrectSequence, StandardCardName.DIAMONDS_TEN).isValid).toBe(
@@ -392,7 +425,82 @@ describe('test the Rummy model and all methods in it', () => {
     expect(rummyGame.isInSequence(incorrectSequence, StandardCardName.DIAMONDS_TEN).isValid).toBe(
       false
     )
+
+    // Complex case: Valid sequence with 4 cards and 1 JOKER
+    let validComplexSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_KING),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_QUEEN),
+    ]
+    expect(rummyGame.isInSequence(validComplexSequence).isValid).toBe(true)
+
+    // Complex case: Valid sequence with 4 cards and 2 JOKERs
+    validComplexSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_KING),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_QUEEN),
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+    ]
+    expect(rummyGame.isInSequence(validComplexSequence).isValid).toBe(true)
+
+    // Complex case: Valid sequence with 5 cards and 1 wildcard
+    validComplexSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+      StandardCardHelper.makeStandardCard(StandardCardName.SPADES_TEN),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_THREE),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_FOUR),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_TWO),
+    ]
+    expect(
+      rummyGame.isInSequence(validComplexSequence, StandardCardName.DIAMONDS_TEN).isValid
+    ).toBe(true)
+
+    // Complex case: Invalid sequence with 4 cards and 2 JOKERs
+    let invalidComplexSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+      StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_THREE),
+      StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_FOUR),
+    ]
+    expect(rummyGame.isInSequence(invalidComplexSequence).isValid).toBe(true)
+
+    // Complex case: Valid sequence with 6 cards and 1 wildcard and 1 JOKER
+    validComplexSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_TEN),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_THREE),
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+      StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_FOUR),
+      StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_TWO),
+    ]
+    expect(
+      rummyGame.isInSequence(validComplexSequence, StandardCardName.DIAMONDS_TEN).isValid
+    ).toBe(true)
+
+    // Complex case: Invalid sequence with 6 cards and 1 JOKER and 1 wildcard
+    invalidComplexSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_FOUR),
+      StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_TEN),
+      StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_ACE),
+      StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_TWO),
+      StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_THREE),
+    ]
+    expect(rummyGame.isInSequence(invalidComplexSequence).isValid).toBe(false)
+
+    // when sequence is actually a pure sequence but with 1 wildcard
+    validComplexSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.SPADES_FIVE),
+      StandardCardHelper.makeStandardCard(StandardCardName.SPADES_SIX),
+      StandardCardHelper.makeStandardCard(StandardCardName.SPADES_SEVEN),
+      StandardCardHelper.makeStandardCard(StandardCardName.SPADES_EIGHT),
+    ]
+    expect(
+      rummyGame.isInSequence(validComplexSequence, StandardCardName.SPADES_EIGHT).isValid
+    ).toBe(true)
   })
+
   it('test isInSet() method', () => {
     const rummyGame = new Rummy(Rummy.makeRummyConfig(true, true, true, true, true, 13))
     // without any joker or wildcard

@@ -278,9 +278,11 @@ export class Rummy {
         if (usedIndexes.includes(index)) {
           return
         }
-        if (this.isInPureSequence(cards).isValid) {
-          usedIndexes.push(index)
-          isInPureSequence = true
+        if (!isInPureSequence) {
+          if (this.isInPureSequence(cards).isValid) {
+            usedIndexes.push(index)
+            isInPureSequence = true
+          }
         }
       })
       if (!isInPureSequence && isReadyToDeclare) {
@@ -312,7 +314,16 @@ export class Rummy {
         errorMessage = ErrorEnum.SEQUENCE_REQUIRED
       }
     }
-
+    if (this.config.isPureSequenceRequired && isReadyToDeclare) {
+      cardGroups.forEach((cards, index) => {
+        if (usedIndexes.includes(index)) {
+          return
+        }
+        if (this.isInPureSequence(cards).isValid) {
+          usedIndexes.push(index)
+        }
+      })
+    }
     cardGroups.forEach((cards, index) => {
       if (usedIndexes.includes(index)) {
         return
@@ -384,8 +395,19 @@ export class Rummy {
       jokerCardCount++
     }
     if (wildCardName !== undefined) {
-      while (StandardCardHelper.isInDeck(tempCards, wildCardName) !== -1) {
-        tempCards.splice(StandardCardHelper.isInDeck(tempCards, wildCardName), 1)
+      while (
+        StandardCardHelper.isNumberInDeck(
+          tempCards,
+          StandardCardHelper.makeStandardCard(wildCardName).number
+        ) !== -1
+      ) {
+        tempCards.splice(
+          StandardCardHelper.isNumberInDeck(
+            tempCards,
+            StandardCardHelper.makeStandardCard(wildCardName).number
+          ),
+          1
+        )
         wildCardCount++
       }
     }
@@ -459,8 +481,9 @@ export class Rummy {
         } else if (
           wildCardName !== undefined &&
           wildCardCount > 0 &&
-          StandardDeck.getNumber(wildCardName) === sequenceNumber + 1 &&
-          StandardDeck.getSuite(wildCardName) === suite
+          StandardDeck.getNumber(wildCardName) === sequenceNumber + 1
+          // &&
+          // StandardDeck.getSuite(wildCardName) === suite
         ) {
           wildCardCount--
           sequenceNumber++
@@ -547,8 +570,19 @@ export class Rummy {
       tempCards.splice(StandardCardHelper.isInDeck(tempCards, StandardCardName.JOKER), 1)
     }
     if (wildCardName !== undefined) {
-      while (StandardCardHelper.isInDeck(tempCards, wildCardName) !== -1) {
-        tempCards.splice(StandardCardHelper.isInDeck(tempCards, wildCardName), 1)
+      while (
+        StandardCardHelper.isNumberInDeck(
+          tempCards,
+          StandardCardHelper.makeStandardCard(wildCardName).number
+        ) !== -1
+      ) {
+        tempCards.splice(
+          StandardCardHelper.isNumberInDeck(
+            tempCards,
+            StandardCardHelper.makeStandardCard(wildCardName).number
+          ),
+          1
+        )
       }
     }
 
