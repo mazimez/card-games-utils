@@ -135,6 +135,19 @@ describe('test the TeenPatti model and all methods in it', () => {
     expect(winnerArr[0]).toBe(0)
   })
   it('test isRankHigher() method', () => {
-    // TODO::finalize the logic to decide which hand should be higher and impliment it and also test it here
+    const isRankHigher = TeenPatti.isRankHigher(
+      TeenPatti.makeHand([
+        StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_ACE),
+        StandardCardHelper.makeStandardCard(StandardCardName.SPADES_ACE),
+        StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_FOUR),
+      ]),
+      TeenPatti.makeHand([
+        StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_NINE),
+        StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_NINE),
+        StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_FIVE),
+      ])
+    )
+
+    expect(isRankHigher).toBe(true)
   })
 })
