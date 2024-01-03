@@ -579,6 +579,14 @@ describe('test the Rummy model and all methods in it', () => {
     expect(rummyGame.isInSet(incorrectSet, StandardCardName.DIAMONDS_TEN).error).toBe(
       ErrorEnum.AT_LEAST_ONE_NORMAL_CARD_NEEDED_FOR_SET
     )
+
+    // with 3 wildcard
+    incorrectSet = [
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_KING),
+      StandardCardHelper.makeStandardCard(StandardCardName.SPADES_KING),
+      StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_KING),
+    ]
+    expect(rummyGame.isInSet(incorrectSet, StandardCardName.HEARTS_KING).isValid).toBe(true)
   })
 
   it('test isInPureSequence() method', () => {

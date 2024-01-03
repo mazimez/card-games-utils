@@ -73,10 +73,10 @@ export enum StandardCardColor {
  * @enum {string}
  */
 export enum StandardCardSuite {
-  CLUBS = 'CLUBS',
-  DIAMONDS = 'DIAMONDS',
-  HEARTS = 'HEARTS',
-  SPADES = 'SPADES',
+  CLUBS = 'CLUBS', // ♣
+  DIAMONDS = 'DIAMONDS', // ♦
+  HEARTS = 'HEARTS', // ♥
+  SPADES = 'SPADES', // ♠
   JOKER = 'JOKER',
 }
 
