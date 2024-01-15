@@ -1,6 +1,6 @@
 # CardDeck Model
 
-- [CardDeck](../../src/models/CardDeck.ts) is the class to perform normal operations on any kind of Deck of cards.
+- [CardDeck](/src/models/CardDeck.ts) is the class to perform normal operations on any kind of Deck of cards.
 - this is not limited to TeenPatti but it can be used in any other game modules that has some kind of card (like Rummy, Poker etc.)
 - here are the methods inside this Class:
 
