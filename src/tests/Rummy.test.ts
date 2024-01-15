@@ -456,6 +456,16 @@ describe('test the Rummy model and all methods in it', () => {
       rummyGame.isInSequence(validComplexSequence, StandardCardName.DIAMONDS_TEN).isValid
     ).toBe(true)
 
+    validComplexSequence = [
+      StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_ACE),
+      StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_SIX),
+      StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_THREE),
+      StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_FOUR),
+    ]
+    expect(rummyGame.isInSequence(validComplexSequence, StandardCardName.SPADES_SIX).isValid).toBe(
+      true
+    )
+
     // Complex case: Invalid sequence with 4 cards and 2 JOKERs
     let invalidComplexSequence = [
       StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
@@ -471,8 +481,8 @@ describe('test the Rummy model and all methods in it', () => {
       StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_TEN),
       StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_THREE),
       StandardCardHelper.makeStandardCard(StandardCardName.JOKER),
-      StandardCardHelper.makeStandardCard(StandardCardName.HEARTS_FOUR),
-      StandardCardHelper.makeStandardCard(StandardCardName.DIAMONDS_TWO),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_FIVE),
+      StandardCardHelper.makeStandardCard(StandardCardName.CLUBS_SIX),
     ]
     expect(
       rummyGame.isInSequence(validComplexSequence, StandardCardName.DIAMONDS_TEN).isValid

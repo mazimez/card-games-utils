@@ -468,11 +468,13 @@ export class Rummy {
     }
 
     let index = 0
+    let shouldSkipThisIndex: boolean = false
     while (isInSequence && !isAllCardCheck) {
       if (sequenceNumber === undefined || suite === undefined) {
         sequenceNumber = tempCards[index].number
         suite = tempCards[index].suite
       } else {
+        shouldSkipThisIndex = false
         if (tempCards[index].number === sequenceNumber + 1 && tempCards[index].suite === suite) {
           sequenceNumber = tempCards[index].number
         } else if (Math.abs(sequenceNumber - tempCards[index].number) > 1 && shouldSkipOnce) {
@@ -481,17 +483,19 @@ export class Rummy {
         } else if (
           wildCardName !== undefined &&
           wildCardCount > 0 &&
-          StandardDeck.getNumber(wildCardName) === sequenceNumber + 1
-          // &&
-          // StandardDeck.getSuite(wildCardName) === suite
+          StandardDeck.getNumber(wildCardName) === sequenceNumber + 1 &&
+          StandardDeck.getSuite(wildCardName) === suite
         ) {
           wildCardCount--
+          shouldSkipThisIndex = true
           sequenceNumber++
         } else if (jokerCardCount > 0) {
           jokerCardCount--
+          shouldSkipThisIndex = true
           sequenceNumber++
         } else if (wildCardCount > 0) {
           wildCardCount--
+          shouldSkipThisIndex = true
           sequenceNumber++
         } else {
           isInSequence = false
@@ -500,7 +504,9 @@ export class Rummy {
       if (tempCards.length - 1 <= index) {
         isAllCardCheck = true
       }
-      index++
+      if (!shouldSkipThisIndex) {
+        index++
+      }
     }
 
     if (isInSequence) {
