@@ -23,7 +23,7 @@ If you find this project helpful, please consider sponsoring its development by 
 - <b>CardDeck</b>
 
   - [StandardCard Interface](CardDeck/standard-card-interface.md)
-  - [StandardDeck Interface](CardDeck/standard-card-interface.md)
+  - [StandardDeck Interface](CardDeck/standard-deck-interface.md)
   - [CardDeck Model](CardDeck/model.md)
   - [StandardCardHelper](CardDeck/standard-card-helper.md)
 
